@@ -16,7 +16,7 @@ Prerequisites:
 * youtube-dl (http://rg3.github.io/youtube-dl/download.html)
 	* **MUST BE INSTALLED FROM THE WEBSITE, NOT FROM A PACKAGE MANAGER**
 * Any codecs you believe may be useful for decoding FLVs and MP4s from youtube (can be any really, needs to be detected by libav-tools)
-* espeak (only if enabling text to speech. It does not affect normal behaviour, and is only for when you get bored)
+* espeak (only if enabling text to speech. It does not affect normal behaviour, and is only for when you get bored) - Thanks to [TimePath](https://github.com/TimePath) for the idea!
 
 If I missed anything, shoot me an e-mail at andrew.silver0@gmail.com - *put [PikaDJ] at the start of the subject so I don't pass it off as spam!*
 

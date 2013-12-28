@@ -1,0 +1,128 @@
+#!/bin/bash
+shouldLoopback=$1
+
+currSong=""
+wasPlaying=false
+
+source ./tf2ConfigFileParser
+
+defaultSink=0
+nullSink=0
+avplayProcId="nope"
+sed -i -e "s/a.*/a$avplayProcId/" /tmp/PikaDJ/resourceIDs.tmp
+
+while read line; do
+    case $line in
+        d*) defaultSink=$(echo $line | sed -e 's/.//') ;;
+        n*) nullSink=$(echo $line | sed -e 's/.//') ;;
+    esac
+done < /tmp/PikaDJ/resourceIDs.tmp
+
+getSongInfo() {
+    echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
+}
+
+saySongInfo() {
+    #songTitle=$(echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//')
+    songTitle="$(getSongInfo)"
+    if [[ $songTitle != "" ]]; then
+        songInfo="\"$songTitle\""
+    else
+        songInfo='Not currently playing!'
+    fi
+    echo "say [PikaDJ] Now Playing: $songInfo" >> stdin
+}
+
+getFirstSong() {
+    echo "playlist" | nc -w 5 127.0.0.1 $vlcPort | sed -e 's/[\r\n]//g' | sed -n -e 's/^|   [0-9]* - \(.*\) ([0-9:]*).*/\1/p' | head -1 | sed -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
+}
+
+getLastSong() {
+    echo "playlist" | nc -w 5 127.0.0.1 $vlcPort | sed -e 's/[\r\n]//g' | sed -n -e 's/^|   [0-9]* - \(.*\) ([0-9:]*).*/\1/p' | tail -1 | sed -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
+}
+
+noSong() {
+    wasPlaying=false
+    if [[ $currSong == "$(getLastSong)" ]]; then
+        echo "clear" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+        rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
+        currSong=""
+    fi
+    if [[ $shouldLoopback != "0" ]]; then
+        echo "Reset mic source due to song stop!" >/dev/null 2>/dev/null
+        kill -9 $avplayProcId >/dev/null 2>/dev/null
+        wait $avplayProcId >/dev/null 2>/dev/null
+        echo "micspamEnable" >> stdin
+        appIndex=0
+        while [[ $appIndex != "null" ]]; do
+            while read sourceLine; do
+                case $sourceLine in
+                    index:\ *) appIndex=$(echo "$sourceLine" | sed -e 's/.*index: \(.*\)/\1/') ;;
+                    application.name\ =\ *) if [[ $(echo "$sourceLine" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex $(pacmd list-sources | grep -i \* | sed -e 's/.*index: \(.*\)/\1/'); appIndex="null"; break; fi ;;
+                esac
+            done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+        done
+    fi
+    echo "micspamDisable" >> stdin
+}
+
+while true
+do
+    watch -g -n 0.25 'echo "status" | nc -w 5 127.0.0.1 '$vlcPort' | sed -n -e "s/> ( new input: \(.*\) ).*/\1/p"' >/dev/null 2>/dev/null
+    source ./tf2ConfigFileParser
+    > /tmp/PikaDJ/voteSkip.tmp
+    songInfo="$(getSongInfo)"
+    if [[ $songInfo != "" ]]; then
+        if [[ $songInfo == "$(getFirstSong)" ]] && [[ $currSong == "$(getLastSong)" ]]; then
+            echo "micspamDisable" >> stdin
+            echo "clear" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+            rm -f ~/Music/youtubeRequests/fixedName/*  >/dev/null 2>/dev/null
+            noSong
+            continue
+        fi
+        if $wasPlaying && ! $autoplay; then
+            echo "stop" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+            noSong
+            continue
+        fi
+        wasPlaying=true
+        currSong=$songInfo
+        echo "micspamDisable" >> stdin
+        kill -9 $avplayProcId >/dev/null 2>/dev/null
+        wait $avplayProcId >/dev/null 2>/dev/null
+        pacmd set-default-sink $nullSink >/dev/null 2>/dev/null
+        songFile=$(echo "status" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> ( new input: \(.*\) ).*/\1/p')
+        if ! [[ $songFile =~ ^.*\.wav$ ]]; then
+            avconv -y -i "$songFile" /tmp/PikaDJ/soxin.wav >/dev/null 2>/dev/null
+            songFile="/tmp/PikaDJ/soxin.wav"
+        fi
+        if [[ $shouldLoopback == "0" ]]; then
+            sox "$songFile" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain0 rate 11025 sinc $sincRange0 bass $bassReduction0 gain -B -n $gain0 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse >/dev/null 2>/dev/null; echo "micspamEnable" >> stdin &
+        else
+            sox "$songFile" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain1 rate 11025 sinc $sincRange1 bass $bassReduction1 gain -B -n $gain1 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse >/dev/null 2>/dev/null
+            avplay -i ../voice_input.wav -nodisp >/dev/null 2>/dev/null &
+            avplayProcId=$!
+            sed -i -e "s/a.*/a$avplayProcId/" /tmp/PikaDJ/resourceIDs.tmp
+            echo "micspamEnable" >> stdin
+            appIndex=0
+            while [[ $appIndex != "null" ]]; do
+                while read line; do
+                    case $line in
+                        index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
+                        application.name\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex "null_TF2Micspam.monitor"; appIndex="null"; break; fi ;;
+                    esac
+                done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+            done
+            pacmd set-default-sink $defaultSink >/dev/null 2>/dev/null
+        fi
+        echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+        echo "seek 0" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+        sleep 1.5
+        #songInfo="\"$songTitle\"$songArtist"
+        #echo "say [PikaDJ] Now Playing: $songInfo" >> stdin
+        saySongInfo
+    else
+        noSong
+    fi
+done
+exit 0

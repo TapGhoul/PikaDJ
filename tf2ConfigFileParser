@@ -1,0 +1,137 @@
+#!/bin/bash
+
+commandPrefix=!pika
+autoplay=true
+vlcPort=1234
+minSongLength=15
+maxSongLength=$((15*60))
+requiredPercentage=26
+funEnabled=false
+bannedWords=("pony" "ponie" "pone" "pon3" "mlpfim" "friendshipismagic" "mylittlepony" "brony" "brone" "bronie" "fluttershy" "flutters" "twilight" "sparkle" "applejack" "rainbowdash" "dashie" "rarity" "everfree" "chrysalis" "discord" "flufflepuff" "hasbro" "elementsofharmony" "changeling" "brohoof" "gmajor" "nyancat" "earrape" "earreap" "earape")
+gain0=-7
+gain1=-8
+bassReduction0=-9
+bassReduction1=-15
+sincRange0=50-5512
+sincRange1=50-5000
+maxQueueSize=15
+
+while read line
+do
+lineSetting=$(echo "$line" | sed -n -e 's/^\([a-zA-Z0-9]*\)=\(.*\)$/\1/p')
+lineValue=$(echo "$line" | sed -n -e 's/^[a-zA-Z0-9]*=\(.*\)$/\1/p')
+if [[ $lineSetting == "" ]]; then continue; fi
+case $lineSetting in
+    commandPrefix)
+        commandPrefix="$lineValue"
+        ;;
+    autoplay)
+        if [[ $lineValue == true ]]; then
+            autoplay=true
+        else
+            autoplay=false
+        fi
+        ;;
+    vlcPort)
+        if [[ $lineValue =~ ^[0-9]+$ ]]; then
+          vlcPort=$((lineValue))
+        else
+            echo "In config file, vlcPort is invalid! Using fallback defaults..."
+        fi
+        ;;
+    minSongLength)
+        if [[ $lineValue =~ ^[0-9]*[mM]$ ]]; then
+            minSongLength=$(($(echo "$lineValue" | sed -e 's/^\(.*\)[mM]$/\1/')*60))
+        elif [[ $lineValue =~ ^[0-9]*[sS]$ ]]; then
+            minSongLength=$(($(echo "$lineValue" | sed -e 's/^\(.*\)[sS]$/\1/')))
+        elif [[ $lineValue =~ ^[0-9]+$ ]]; then
+            minSongLength=$((lineValue))
+        else
+            echo "In config file, minSongLength is invalid! Using fallback defaults..."
+        fi
+        ;;
+    maxSongLength)
+        if [[ $lineValue =~ ^[0-9]+[mM]$ ]]; then
+            maxSongLength=$(($(echo "$lineValue" | sed -e 's/^\(.*\)[mM]$/\1/')*60))
+        elif [[ $lineValue =~ ^[0-9]+[sS]$ ]]; then
+            maxSongLength=$(($(echo "$lineValue" | sed -e 's/^\(.*\)[sS]$/\1/')))
+        elif [[ $lineValue =~ ^[0-9]+$ ]]; then
+            maxSongLength=$((lineValue))
+        else
+            echo "In config file, maxSongLength is invalid! Using fallback defaults..."
+        fi
+        ;;
+    maxQueueSize)
+        if [[ $lineValue =~ ^[0-9]+$ ]]; then
+            maxQueueSize=$((lineValue))
+        else
+            echo "In config file, maxQueueSize is invalid! Using fallback defaults..."
+        fi
+        ;;
+    requiredPercentage)
+        if [[ $lineValue =~ ^[0-9]+$ ]]; then
+            requiredPercentage=$((lineValue))
+        else
+            echo "In config file, requiredPercentage is invalid! Using fallback defaults..."
+        fi
+        ;;
+    funEnabled)
+        if [[ $lineValue == true ]]; then
+            funEnabled=true
+        else
+            funEnabled=false
+        fi
+        ;;
+    bannedWords)
+        if [[ $lineValue =~ ^[a-z0-9\ ]*$ ]]; then
+            IFS=' ' read -a bannedWords <<< "$lineValue"
+        else
+            echo "In config file, bannedWords is invalid! Using fallback defaults..."
+        fi
+        ;;
+    gain0)
+        if [[ $lineValue =~ ^[-0-9]+$ ]]; then
+            gain0=$((lineValue))
+        else
+            echo "In config file, gain0 is invalid! Using fallback defaults..."
+        fi
+        ;;
+    gain1)
+        if [[ $lineValue =~ ^[-0-9]+$ ]]; then
+            gain1=$((lineValue))
+        else
+            echo "In config file, gain1 is invalid! Using fallback defaults..."
+        fi
+        ;;
+    bassReduction0)
+        if [[ $lineValue =~ ^[-0-9]+$ ]]; then
+            bassReduction0=$((lineValue))
+        else
+            echo "In config file, bassReduction0 is invalid! Using fallback defaults..."
+        fi
+        ;;
+    bassReduction1)
+        if [[ $lineValue =~ ^[-0-9]+$ ]]; then
+            bassReduction1=$((lineValue))
+        else
+            echo "In config file, bassReduction1 is invalid! Using fallback defaults..."
+        fi
+        ;;
+    sincRange0)
+        if [[ $lineValue =~ ^[0-9]+-[0-9]+$ ]]; then
+            sincRange0="$lineValue"
+        else
+            echo "In config file, sincRange0 is invalid! Using fallback defaults..."
+        fi
+        ;;
+    sincRange1)
+        if [[ $lineValue =~ ^[0-9]+-[0-9]+$ ]]; then
+            sincRange1="$lineValue"
+        else
+            echo "In config file, sincRange1 is invalid! Using fallback defaults..."
+        fi
+        ;;
+esac
+done < ./config.cfg
+configReloadSource=$(basename "$0")
+echo "Config file reloaded by \"$configReloadSource\""

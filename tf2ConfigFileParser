@@ -7,7 +7,10 @@ minSongLength=15
 maxSongLength=$((15*60))
 requiredPercentage=26
 funEnabled=false
-bannedWords=("pony" "ponie" "pone" "pon3" "mlpfim" "friendshipismagic" "mylittlepony" "brony" "brone" "bronie" "fluttershy" "flutters" "twilight" "sparkle" "applejack" "rainbowdash" "dashie" "rarity" "everfree" "chrysalis" "discord" "flufflepuff" "hasbro" "elementsofharmony" "changeling" "brohoof" "gmajor" "nyancat" "earrape" "earreap" "earape")
+ttsEnabled=false
+ttsShrek=true
+ttsVagineer=false
+bannedWords=("pony" "ponie" "pone" "pon3" "mlpfim" "friendshipismagic" "mylittlepony" "brony" "brone" "bronie" "fluttershy" "flutters" "twilight" "sparkle" "applejack" "rainbowdash" "dashie" "rarity" "everfree" "chrysalis" "discord" "flufflepuff" "hasbro" "elementsofharmony" "changeling" "brohoof" "gmajor" "nyancat" "earrape" "earreap" "earape" "gmajor")
 gain0=-7
 gain1=-8
 bassReduction0=-9
@@ -80,6 +83,27 @@ case $lineSetting in
             funEnabled=true
         else
             funEnabled=false
+        fi
+        ;;
+    ttsEnabled)
+        if [[ $lineValue == true ]]; then
+            ttsEnabled=true
+        else
+            ttsEnabled=false
+        fi
+        ;;
+    ttsShrek)
+        if [[ $lineValue == true ]]; then
+            ttsShrek=true
+        else
+            ttsShrek=false
+        fi
+        ;;
+    ttsVagineer)
+        if [[ $lineValue == true ]]; then
+            ttsVagineer=true
+        else
+            ttsVagineer=false
         fi
         ;;
     bannedWords)

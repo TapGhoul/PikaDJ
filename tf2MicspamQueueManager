@@ -91,15 +91,15 @@ do
         kill -9 $avplayProcId >/dev/null 2>/dev/null
         wait $avplayProcId >/dev/null 2>/dev/null
         pacmd set-default-sink $nullSink >/dev/null 2>/dev/null
-        songFile=$(echo "status" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> ( new input: \(.*\) ).*/\1/p')
+        songFile=$(echo "status" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> ( new input: file:\/\/\(.*\) ).*/\1/p')
         if ! [[ $songFile =~ ^.*\.wav$ ]]; then
             avconv -y -i "$songFile" /tmp/PikaDJ/soxin.wav >/dev/null 2>/dev/null
             songFile="/tmp/PikaDJ/soxin.wav"
         fi
         if [[ $shouldLoopback == "0" ]]; then
-            sox "$songFile" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain0 rate 11025 sinc $sincRange0 bass $bassReduction0 gain -B -n $gain0 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse >/dev/null 2>/dev/null; echo "micspamEnable" >> stdin &
+            sox "$songFile" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain0 rate 11025 sinc $sincRange0 bass $bassReduction0 gain -B -n $gain0 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse; echo "micspamEnable" >> stdin &
         else
-            sox "$songFile" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain1 rate 11025 sinc $sincRange1 bass $bassReduction1 gain -B -n $gain1 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse >/dev/null 2>/dev/null
+            sox "$songFile" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain1 rate 11025 sinc $sincRange1 bass $bassReduction1 gain -B -n $gain1 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse
             avplay -i ../voice_input.wav -nodisp >/dev/null 2>/dev/null &
             avplayProcId=$!
             sed -i -e "s/a.*/a$avplayProcId/" /tmp/PikaDJ/resourceIDs.tmp

@@ -23,6 +23,11 @@ done
 echo "volume 0" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
 currSong=0
 
+to_seconds () {
+    IFS=: read h m s <<< "$1"
+    echo $(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
+}
+
 getSongInfo() {
     echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
 }
@@ -163,7 +168,6 @@ cleanupExit() {
     echo "micspamDisable" >> stdin
     rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
     rm -rf /tmp/PikaDJ/ >/dev/null 2>/dev/null
-    > stdin
 }
 
 trap 'cleanupExit' EXIT
@@ -171,13 +175,62 @@ init
 
 tail -f ../tf/console.log -n1 | while read line ; do
 lineLower=$(echo "$line" | tr '[:upper:]' '[:lower:]')
-tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\) :  .*/\1/' -e 's/"/\\"/g')
-#ranCmd=$(echo "$line" | sed -e 's/.* :  !pika\(.*\)/\1/' -e 's/"/\\"/g')
-ranCmd=$(echo "$line" | sed -e 's/.* :  '"$commandPrefix"'\(.*\)/\1/I' -e 's/"/\\"/g')
-ranCmdFull=$(echo "$line" | sed -e 's/.* :  \(.*\)/\1/' -e 's/"/\\"/g')
+tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\) :  .*/\1/' -e 's/\"/\\\"/g')
+#ranCmd=$(echo "$line" | sed -e 's/.* :  !pika\(.*\)/\1/' -e 's/\"/\\\"/g')
+ranCmd=$(echo "$line" | sed -e 's/.* :  '"$commandPrefix"'\(.*\)/\1/I' -e 's/\"/\\\"/g')
+ranCmdFull=$(echo "$line" | sed -e 's/.* :  \(.*\)/\1/' -e 's/\"/\\\"/g')
 ranCmdLower=$(echo "$ranCmd" | tr '[:upper:]' '[:lower:]')
 ranCmdLowerFull=$(echo "$ranCmdFull" | tr '[:upper:]' '[:lower:]')
-if [[ $ranCmd != $line ]]
+if $ttsEnabled; then
+    tUser=$(echo "$tUser" | sed -e 's/\\//g')
+    ranCmdFull=$(echo "$ranCmdFull" | sed -e 's/\\//g')
+    if [[ "$ranCmdFull" != "$line" ]]; then
+        ranCmdFull=$(echo "$ranCmdFull" | tr -cd '[:print:]')
+        echo "$tUser said: $ranCmdFull"
+        if $ttsShrek; then ttsVoice="en-scottish"; else ttsVoice="default"; fi
+        if $ttsVagineer; then
+            echo "$ranCmdFull" | rev | espeak -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav reverse
+        else
+            echo "$ranCmdFull" | espeak -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav
+        fi
+        length=$(avprobe ../voice_input.wav 2>&1 | sed -n -e 's/^.*Duration: \([0-9:\.]\{11\}\),.*$/\1/p')
+        lengthWhole=$(echo "$length" | sed -e 's/\.[0-9]\{2\}$//')
+        lengthMS=$(echo "$length" | sed -e 's/^.*\(\.[0-9]\{2\}\)$/\1/')
+        echo "micspamEnable" >> stdin
+        if [[ $shouldLoopback != "0" ]]; then
+            avplay -i ../voice_input.wav -nodisp >/dev/null 2>/dev/null &
+            avplayProcId=$!
+            sed -i -e "s/a.*/a$avplayProcId/" /tmp/PikaDJ/resourceIDs.tmp
+            echo "micspamEnable" >> stdin
+            appIndex=0
+            while [[ $appIndex != "null" ]]; do
+                while read line; do
+                    case $line in
+                        index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
+                        application.name\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex "null_TF2Micspam.monitor"; appIndex="null"; break; fi ;;
+                    esac
+                done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+            done
+            pacmd set-default-sink $defaultSink >/dev/null 2>/dev/null
+        fi
+        sleep $(to_seconds "$lengthWhole")$lengthMS
+        kill -9 $avplayProcId >/dev/null 2>/dev/null
+        wait $avplayProcId >/dev/null 2>/dev/null
+        if [[ $shouldLoopback != "0" ]]; then
+            echo "micspamEnable" >> stdin
+            appIndex=0
+            while [[ $appIndex != "null" ]]; do
+                while read sourceLine; do
+                    case $sourceLine in
+                        index:\ *) appIndex=$(echo "$sourceLine" | sed -e 's/.*index: \(.*\)/\1/') ;;
+                        application.name\ =\ *) if [[ $(echo "$sourceLine" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex $(pacmd list-sources | grep -i \* | sed -e 's/.*index: \(.*\)/\1/'); appIndex="null"; break; fi ;;
+                    esac
+                done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+            done
+        fi
+        echo "micspamDisable" >> stdin
+    fi
+elif [[ $ranCmd != $line ]]
 then
 case $ranCmdLower in
     skip)

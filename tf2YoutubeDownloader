@@ -61,17 +61,17 @@ if [[ $filename != "" ]]; then
     else
         echo "$title is an acceptable length! It is $songDurationPrintable"
     fi
+    fixedname=$(echo $filename | tr -cd '[:print:]')
     cd ~/Music/youtubeRequests/
-    if [[ ! -f "$filename" ]]; then
-        youtube-dl -q -f "139/140/17/36/5" -x --audio-format "wav" --no-playlist --no-check-certificate -o "%(title)s.%(ext)s" "$1"
-        downloadStatus=$?
-    else
-        downloadStatus=0
-    fi
-    if [[ $downloadStatus == 0 ]]; then
-        fixedname=$(echo $filename | tr -cd '[:print:]')
-        if [[ ! -f "fixedName/$fixedname" ]]; then
-            echo "say \"[PikaDJ] Preparing $title...\"" >> "$currDir/stdin"
+    if [[ ! -f "fixedName/$fixedname" ]]; then
+        echo "say \"[PikaDJ] Preparing $title...\"" >> "$currDir/stdin"
+        if [[ ! -f "$filename" ]]; then
+            youtube-dl -q -f "139/140/17/36/5" -x --audio-format "wav" --no-playlist --no-check-certificate -o "%(title)s.%(ext)s" "$1"
+            downloadStatus=$?
+        else
+            downloadStatus=0
+        fi
+        if [[ $downloadStatus == 0 ]]; then
             cp -f "$filename" "fixedName/$fixedname"
             #avconv -y -i "$filename" "converted/${filename%.*}.wav" >/dev/null 2>/dev/null
             cd fixedName
@@ -83,14 +83,14 @@ if [[ $filename != "" ]]; then
             echo "$title is now ready to play!"
         else
             cd "$currDir"
-            echo "$title already exists in the playlist!"
-            echo "say \"[PikaDJ] $title is already in the playlist! Sorry!\"" >> stdin
+            echo "Youtube download failed!"
+            echo "say \"[PikaDJ] There was an error downloading $title! Try again later!\"" >> stdin
             exit 1
         fi
     else
         cd "$currDir"
-        echo "Youtube download failed!"
-        echo "say \"[PikaDJ] There was an error downloading $title! Try again later!\"" >> stdin
+        echo "$title already exists in the playlist!"
+        echo "say \"[PikaDJ] $title is already in the playlist! Sorry!\"" >> stdin
         exit 1
     fi
 else

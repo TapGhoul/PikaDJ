@@ -189,9 +189,9 @@ if $ttsEnabled; then
         echo "$tUser said: $ranCmdFull"
         if $ttsShrek; then ttsVoice="en-scottish"; else ttsVoice="default"; fi
         if $ttsVagineer; then
-            echo "$ranCmdFull" | rev | espeak -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav reverse
+            echo "$ranCmdFull" | rev | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav reverse
         else
-            echo "$ranCmdFull" | espeak -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav
+            echo "$ranCmdFull" | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav
         fi
         length=$(avprobe ../voice_input.wav 2>&1 | sed -n -e 's/^.*Duration: \([0-9:\.]\{11\}\),.*$/\1/p')
         lengthWhole=$(echo "$length" | sed -e 's/\.[0-9]\{2\}$//')

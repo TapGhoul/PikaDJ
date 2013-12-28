@@ -65,7 +65,7 @@ if [[ $filename != "" ]]; then
     fixedname=$(echo $filename | tr -cd '[:print:]')
     cd ~/Music/youtubeRequests/
     if [[ ! -f "fixedName/$fixedname" ]]; then
-        echo "say \"[PikaDJ] Preparing $title...\"" >> "$currDir/stdin"
+        echo "say \"[PikaDJ] Preparing \"$title\"...\"" >> "$currDir/stdin"
         if [[ ! -f "$filename" ]]; then
             youtube-dl -q -f "139/140/17/36/5" -x --audio-format "wav" --no-playlist --no-check-certificate -o "%(title)s.%(ext)s" "$1"
             downloadStatus=$?

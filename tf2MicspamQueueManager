@@ -121,6 +121,7 @@ do
         #songInfo="\"$songTitle\"$songArtist"
         #echo "say [PikaDJ] Now Playing: $songInfo" >> stdin
         saySongInfo
+        > /tmp/PikaDJ/voteSkip.tmp
     else
         noSong
     fi

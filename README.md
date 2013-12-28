@@ -26,9 +26,22 @@ Most error messages are silenced in the software, so it may be a bit difficult t
 Installation:
 -------------
 
-1. Copy all files to `~/.local/share/Steam/SteamApps/common/Team Fortress 2/PikaDJ/`
-2. Make all the files executable (excluding the .cfg file)
-3. Add these lines to autoexec.cfg in `~/.local/share/Steam/SteamApps/common/Team Fortress 2/tf/cfg/`:
+1. Clone the repository to `~/.local/share/Steam/SteamApps/common/Team Fortress 2/` with
+
+	```bash
+	$ cd "~/.local/share/Steam/SteamApps/common/Team Fortress 2/"
+	$ git clone https://github.com/Silvea12/PikaDJ.git
+	```
+
+	* You should have a file structure something like `~/.local/share/Steam/SteamApps/common/Team Fortress 2/PikaDJ/config.cfg` (this is just one file, there are more within the PikaDJ directory).
+	* All file permissions should be correct by default. If the main file won't execute, run this in terminal:
+
+	```bash
+	$ cd "~/.local/share/Steam/SteamApps/common/Team Fortress 2/PikaDJ/"
+	$ chmod a+x PikaDJ tf2*
+	```
+
+2. Add these lines to autoexec.cfg in `~/.local/share/Steam/SteamApps/common/Team Fortress 2/tf/cfg/`:
 
 	```
 	// These keybinds are easily modifiable, so feel free to change them to suit your needs. //
@@ -44,9 +57,9 @@ Installation:
 	// End keybinds for PikaDJ //
 	```
 
-4. Set your TF2 launch options to `> tf/console.log; > PikaDJ/stdin; %command% -condebug < PikaDJ/stdin`
+3. Set your TF2 launch options to `> tf/console.log; > PikaDJ/stdin; %command% -condebug < PikaDJ/stdin`
 	* Feel free to add other commands between `%command%` and `< PikaDJ/stdin`. `-condebug` is *required* to be in between those 2 segments.
-5. Profit!
+4. Profit!
 
 Usage:
 ------
@@ -54,9 +67,15 @@ Usage:
 #### Running:
 
 1. Start TF2
-2. Open a terminal in `~/.local/share/Steam/SteamApps/common/Team Fortress 2/PikaDJ/`
-3. Run `./PikaDJ` in the terminal
-4. Profit!
+2. Run this in terminal:
+
+	```bash
+	$ cd ~/.local/share/Steam/SteamApps/common/Team Fortress 2/PikaDJ/
+	$ ./PikaDJ
+	```
+
+3. Profit!
+
 Steps 1/2 can be switched, step 3 needs to be run once TF2 is started.
 
 #### In-Game Chat Commands:

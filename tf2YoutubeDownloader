@@ -1,5 +1,5 @@
 #!/bin/bash
-currDir=$(pwd)
+currDir=$PWD
 filename=""
 songDuration=""
 #if [[ $2 == "[DG] The Alchemist" ]]; then echo "say \"[PikaDJ] Sorry $2, but you have been blocked from requesting songs!\"" >> stdin; exit 0; fi
@@ -75,7 +75,7 @@ if [[ $filename != "" ]]; then
             cp -f "$filename" "fixedName/$fixedname"
             #avconv -y -i "$filename" "converted/${filename%.*}.wav" >/dev/null 2>/dev/null
             cd fixedName
-            echo "enqueue $(pwd)/$fixedname" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+            echo "enqueue $PWD/$fixedname" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
             cd "$currDir"
             source ./tf2ConfigFileParser
             if $autoplay; then echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null; fi

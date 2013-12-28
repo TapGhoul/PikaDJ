@@ -163,6 +163,7 @@ cleanupExit() {
     echo "micspamDisable" >> stdin
     rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
     rm -rf /tmp/PikaDJ/ >/dev/null 2>/dev/null
+    > stdin
 }
 
 trap 'cleanupExit' EXIT

@@ -15,381 +15,377 @@ echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
 vlc -I rc --rc-host 127.0.0.1:$vlcPort --novideo 2>/dev/null >/dev/null &
 #VLC_PID=$!
 while true; do
-    echo | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-    if [[ $? == 0 ]]; then
-        break;
-    fi
+	echo | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+	if [[ $? == 0 ]]; then
+		break;
+	fi
 done
 echo "volume 0" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
 currSong=0
 
 to_seconds () {
-    IFS=: read h m s <<< "$1"
-    echo $(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
+	IFS=: read h m s <<< "$1"
+	echo $(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
 }
 
 getSongInfo() {
-    echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
+	echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
 }
 
 saySongInfo() {
-    #songTitle=$(echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//')
-    songTitle=$(getSongInfo)
-    if [[ $songTitle != "" ]]; then
-        songInfo="\"$songTitle\""
-    else
-        songInfo='Not currently playing!'
-    fi
-    echo "say [PikaDJ] Now Playing: $songInfo" >> stdin
+	#songTitle=$(echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//')
+	songTitle=$(getSongInfo)
+	if [[ $songTitle != "" ]]; then
+		songInfo="\"$songTitle\""
+	else
+		songInfo='Not currently playing!'
+	fi
+	echo "say [PikaDJ] Now Playing: $songInfo" >> stdin
 }
 
 urlencode() {
-    # urlencode <string>
+	# urlencode <string>
 
-    local length="${#1}"
-    for (( i = 0 ; i < length ; i++ )); do
-        local c="${1:i:1}"
-        case "$c" in
-            [a-zA-Z0-9.~_-]) printf "$c" ;;
-            ' ') printf + ;;
-            *) printf '%%%X' "'$c"
-        esac
-    done
+	local length="${#1}"
+	for (( i = 0 ; i < length ; i++ )); do
+		local c="${1:i:1}"
+		case "$c" in
+			[a-zA-Z0-9.~_-]) printf "$c" ;;
+			' ') printf + ;;
+			*) printf '%%%X' "'$c"
+		esac
+	done
 }
 
 getLastSong() {
-    echo "playlist" | nc -w 5 127.0.0.1 $vlcPort | sed -e 's/[\r\n]//g' | sed -n -e 's/^|   [0-9]* - \(.*\) ([0-9:]*).*/\1/p' | tail -1
+	echo "playlist" | nc -w 5 127.0.0.1 $vlcPort | sed -e 's/[\r\n]//g' | sed -n -e 's/^|   [0-9]* - \(.*\) ([0-9:]*).*/\1/p' | tail -1
 }
 
 getPlayerCount() {
-    rm /tmp/PikaDJ/serverPlayers.tmp >/dev/null 2>/dev/null
-    > ../tf/console.log
-    (sleep 0.2; while true; do > ../tf/console.log; echo "status" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
-    pidToKill=$!
-    watch -g -n 0.1 'grep "players : [0-9]*" ../tf/console.log' >/dev/null 2>/dev/null
-    playerCount=$(grep "players : [0-9]" ../tf/console.log | sed -e 's/players : \([0-9]*\).*/\1/')
-    echo $playerCount
-    kill -9 $pidToKill >/dev/null 2>/dev/null
-    wait $pidToKill >/dev/null 2>/dev/null
-    sed -n -e 's/\# \{1,\}[0-9]\{1,\} "\(.\{1,\}\)" \{1,\}STEAM_[0-9]:[0-9]:[0-9]\{1,\} \{1,\}[0-9:]\{5,\} \{1,\}[0-9]\{1,\} \{1,\}[0-9]\{1,\} [a-z].\{1,\}/\1/p' ../tf/console.log | while read line; do echo "$line" >> /tmp/PikaDJ/serverPlayers.tmp; done
+	rm /tmp/PikaDJ/serverPlayers.tmp >/dev/null 2>/dev/null
+	> ../tf/console.log
+	(sleep 0.2; while true; do > ../tf/console.log; echo "status" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
+	pidToKill=$!
+	watch -g -n 0.1 'grep "players : [0-9]*" ../tf/console.log' >/dev/null 2>/dev/null
+	playerCount=$(grep "players : [0-9]" ../tf/console.log | sed -e 's/players : \([0-9]*\).*/\1/')
+	echo $playerCount
+	kill -9 $pidToKill >/dev/null 2>/dev/null
+	wait $pidToKill >/dev/null 2>/dev/null
+	sed -n -e 's/\# \{1,\}[0-9]\{1,\} "\(.\{1,\}\)" \{1,\}STEAM_[0-9]:[0-9]:[0-9]\{1,\} \{1,\}[0-9:]\{5,\} \{1,\}[0-9]\{1,\} \{1,\}[0-9]\{1,\} [a-z].\{1,\}/\1/p' ../tf/console.log | while read line; do echo "$line" >> /tmp/PikaDJ/serverPlayers.tmp; done
 }
 
 init() {
-    echo "Initilizing..."
-    source ./tf2ConfigFileParser
-    echo "alias micspamEnable \"volume 100; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable\"" >> stdin
-    echo "alias micspamDisable \"volume 100; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable\"" >> stdin
-    echo "alias micspamToggle micspamEnable" >> stdin
-    (while true; do > ../tf/console.log; echo "sv_use_steam_voice" >> stdin; sleep 2; done) & >/dev/null 2>/dev/null
-    pidToKill=$!
-    watch -g -n 0.1 'grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../tf/console.log' >/dev/null 2>/dev/null
-    shouldLoopback=$(grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../tf/console.log | tail -1 | sed -e 's/.*\"sv_use_steam_voice\" = \"\(.\)\".*/\1/')
-    kill -9 $pidToKill >/dev/null 2>/dev/null
-    wait $pidToKill >/dev/null 2>/dev/null
-    echo "shouldLoopback: $shouldLoopback"
+	echo "Initilizing..."
+	source ./tf2ConfigFileParser
+	echo "alias micspamEnable \"volume 100; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable\"" >> stdin
+	echo "alias micspamDisable \"volume 100; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable\"" >> stdin
+	echo "alias micspamToggle micspamEnable" >> stdin
+	(while true; do > ../tf/console.log; echo "sv_use_steam_voice" >> stdin; sleep 2; done) & >/dev/null 2>/dev/null
+	pidToKill=$!
+	watch -g -n 0.1 'grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../tf/console.log' >/dev/null 2>/dev/null
+	shouldLoopback=$(grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../tf/console.log | tail -1 | sed -e 's/.*\"sv_use_steam_voice\" = \"\(.\)\".*/\1/')
+	kill -9 $pidToKill >/dev/null 2>/dev/null
+	wait $pidToKill >/dev/null 2>/dev/null
+	echo "shouldLoopback: $shouldLoopback"
 
-    if [[ $shouldLoopback == "0" ]]; then
-        echo "voice_inputfromfile 1; micspamDisable" >> stdin
-        sleep 0.05
-        echo "voice_inputfromfile 1; micspamDisable" >> stdin
-    else
-        echo "voice_inputfromfile 0; micspamDisable" >> stdin
-        sleep 0.05
-        echo "voice_inputfromfile 0; micspamDisable" >> stdin
-    fi
+	if [[ $shouldLoopback == "0" ]]; then
+		echo "voice_inputfromfile 1; micspamDisable" >> stdin
+		sleep 0.05
+		echo "voice_inputfromfile 1; micspamDisable" >> stdin
+	else
+		echo "voice_inputfromfile 0; micspamDisable" >> stdin
+		sleep 0.05
+		echo "voice_inputfromfile 0; micspamDisable" >> stdin
+	fi
 
-    ./tf2MicspamQueueManager $shouldLoopback &
-    QueueManager_PID=$!
-    #echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-    echo "stop" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-    #vlc -I rc --rc-host 127.0.0.1:$vlcPort --novideo 2>/dev/null >/dev/null &
-    #VLC_PID=$!
-    #./tf2MicspamScheduledCommands 2>/dev/null >/dev/null &
-    #ScheduledCommands_PID=$!
+	./tf2MicspamQueueManager $shouldLoopback &
+	QueueManager_PID=$!
+	#echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+	echo "stop" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+	#vlc -I rc --rc-host 127.0.0.1:$vlcPort --novideo 2>/dev/null >/dev/null &
+	#VLC_PID=$!
+	#./tf2MicspamScheduledCommands 2>/dev/null >/dev/null &
+	#ScheduledCommands_PID=$!
 
-    #pactl unload-module $nullSink
+	#pactl unload-module $nullSink
 
-    defaultSink=$(pacmd list-sinks | grep "\* index" | sed -e 's/^.*index: \(.*\)$/\1/')
-    nullSink=$(pactl load-module module-null-sink sink_name="null_TF2Micspam" sink_properties=device.description="TF2_Micspam_Null_Sink")
+	defaultSink=$(pacmd list-sinks | grep "\* index" | sed -e 's/^.*index: \(.*\)$/\1/')
+	nullSink=$(pactl load-module module-null-sink sink_name="null_TF2Micspam" sink_properties=device.description="TF2_Micspam_Null_Sink")
 
-    > /tmp/PikaDJ/voteSkip.tmp
+	> /tmp/PikaDJ/voteSkip.tmp
 
-    echo "anope" > /tmp/PikaDJ/resourceIDs.tmp
-    echo "n$nullSink" >> /tmp/PikaDJ/resourceIDs.tmp
-    echo "d$defaultSink" >> /tmp/PikaDJ/resourceIDs.tmp
-    echo "k$QueueManager_PID" >> /tmp/PikaDJ/resourceIDs.tmp
-    #echo "k$VLC_PID" >> /tmp/PikaDJ/resourceIDs.tmp
-    echo "New queue manager PID: $QueueManager_PID"
-    if $autoplay; then
-        sleep 1.5
-        echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-        echo "seek 0" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-    fi
-    #echo "Scheduled commands PID: $ScheduledCommands_PID"
+	echo "anope" > /tmp/PikaDJ/resourceIDs.tmp
+	echo "n$nullSink" >> /tmp/PikaDJ/resourceIDs.tmp
+	echo "d$defaultSink" >> /tmp/PikaDJ/resourceIDs.tmp
+	echo "k$QueueManager_PID" >> /tmp/PikaDJ/resourceIDs.tmp
+	#echo "k$VLC_PID" >> /tmp/PikaDJ/resourceIDs.tmp
+	echo "New queue manager PID: $QueueManager_PID"
+	if $autoplay; then
+		sleep 1.5
+		echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+		echo "seek 0" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+	fi
+	#echo "Scheduled commands PID: $ScheduledCommands_PID"
 }
 
 cleanup() {
-    echo "Cleaning up..."
-    #echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-    #kill -9 $QueueManager_PID
-    #kill -9 $ScheduledCommands_PID
-    #kill -9 $(tail /tmp/PikaDJ/avplayID.tmp)
-    #pactl unload-module $nullSink
-    #pacmd set-default-sink $defaultSink
-    while read line; do
-        lineID=$(echo $line | sed -e 's/.//')
-        case $line in
-            a*) kill -9 $lineID; wait $lineID ;;
-            d*) pacmd set-default-sink $lineID ;;
-            n*) pactl unload-module $lineID ;;
-            k*) kill -9 $lineID; wait $lineID ;;
-        esac
-    done < /tmp/PikaDJ/resourceIDs.tmp >/dev/null 2>/dev/null
-    echo "micspamDisable" >> stdin
+	echo "Cleaning up..."
+	#echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+	#kill -9 $QueueManager_PID
+	#kill -9 $ScheduledCommands_PID
+	#kill -9 $(tail /tmp/PikaDJ/avplayID.tmp)
+	#pactl unload-module $nullSink
+	#pacmd set-default-sink $defaultSink
+	while read line; do
+		lineID=$(echo $line | sed -e 's/.//')
+		case $line in
+			a*) kill -9 $lineID; wait $lineID ;;
+			d*) pacmd set-default-sink $lineID ;;
+			n*) pactl unload-module $lineID ;;
+			k*) kill -9 $lineID; wait $lineID ;;
+		esac
+	done < /tmp/PikaDJ/resourceIDs.tmp >/dev/null 2>/dev/null
+	echo "micspamDisable" >> stdin
 }
 
 cleanupExit() {
-    echo "Cleaning up..."
-    echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-    #kill -9 $QueueManager_PID
-    #kill -9 $ScheduledCommands_PID
-    #kill -9 $(tail /tmp/PikaDJ/avplayID.tmp)
-    #pactl unload-module $nullSink
-    #pacmd set-default-sink $defaultSink
-    while read line; do
-        lineID=$(echo $line | sed -e 's/.//')
-        case $line in
-            a*) kill -9 $lineID; wait $lineID ;;
-            d*) pacmd set-default-sink $lineID ;;
-            n*) pactl unload-module $lineID ;;
-            k*) kill -9 $lineID; wait $lineID ;;
-        esac
-    done < /tmp/PikaDJ/resourceIDs.tmp >/dev/null 2>/dev/null
-    echo "micspamDisable" >> stdin
-    rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
-    rm -rf /tmp/PikaDJ/ >/dev/null 2>/dev/null
+	echo "Cleaning up..."
+	echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+	#kill -9 $QueueManager_PID
+	#kill -9 $ScheduledCommands_PID
+	#kill -9 $(tail /tmp/PikaDJ/avplayID.tmp)
+	#pactl unload-module $nullSink
+	#pacmd set-default-sink $defaultSink
+	while read line; do
+		lineID=$(echo $line | sed -e 's/.//')
+		case $line in
+			a*) kill -9 $lineID; wait $lineID ;;
+			d*) pacmd set-default-sink $lineID ;;
+			n*) pactl unload-module $lineID ;;
+			k*) kill -9 $lineID; wait $lineID ;;
+		esac
+	done < /tmp/PikaDJ/resourceIDs.tmp >/dev/null 2>/dev/null
+	echo "micspamDisable" >> stdin
+	rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
+	rm -rf /tmp/PikaDJ/ >/dev/null 2>/dev/null
 }
 
 trap 'cleanupExit' EXIT
 init
 
 tail -f ../tf/console.log -n1 | while read line ; do
-lineLower=$(echo "$line" | tr '[:upper:]' '[:lower:]')
-tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\) :  .*/\1/' -e 's/\"/\\\"/g')
+tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\) :  .*/\1/')
+tUserEscaped=$(echo "$tUser" | sed -e 's/\"/\\\"/g')
 #ranCmd=$(echo "$line" | sed -e 's/.* :  !pika\(.*\)/\1/' -e 's/\"/\\\"/g')
-ranCmd=$(echo "$line" | sed -e 's/.* :  '"$commandPrefix"'\(.*\)/\1/I' -e 's/\"/\\\"/g')
-ranCmdFull=$(echo "$line" | sed -e 's/.* :  \(.*\)/\1/' -e 's/\"/\\\"/g')
+ranCmd=$(echo "$line" | sed -e 's/.* :  '"$commandPrefix"'\(.*\)/\1/I')
+ranCmdEscaped=$(echo "$ranCmd" | sed -e 's/\"/\\\"/g')
+ranCmdFull=$(echo "$line" | sed -e 's/.* :  \(.*\)/\1/')
 ranCmdLower=$(echo "$ranCmd" | tr '[:upper:]' '[:lower:]')
-ranCmdLowerFull=$(echo "$ranCmdFull" | tr '[:upper:]' '[:lower:]')
-if $ttsEnabled; then
-    tUser=$(echo "$tUser" | sed -e 's/\\//g')
-    ranCmdFull=$(echo "$ranCmdFull" | sed -e 's/\\//g')
-    if [[ "$ranCmdFull" != "$line" ]]; then
-        ranCmdFull=$(echo "$ranCmdFull" | tr -cd '[:print:]')
-        echo "$tUser said: $ranCmdFull"
-        if $ttsShrek; then ttsVoice="en-scottish"; else ttsVoice="default"; fi
-        if $ttsVagineer; then
-            echo "$ranCmdFull" | rev | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav reverse
-        else
-            echo "$ranCmdFull" | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav
-        fi
-        length=$(avprobe ../voice_input.wav 2>&1 | sed -n -e 's/^.*Duration: \([0-9:\.]\{11\}\),.*$/\1/p')
-        lengthWhole=$(echo "$length" | sed -e 's/\.[0-9]\{2\}$//')
-        lengthMS=$(echo "$length" | sed -e 's/^.*\(\.[0-9]\{2\}\)$/\1/')
-        echo "micspamEnable" >> stdin
-        if [[ $shouldLoopback != "0" ]]; then
-            avplay -i ../voice_input.wav -nodisp >/dev/null 2>/dev/null &
-            avplayProcId=$!
-            sed -i -e "s/a.*/a$avplayProcId/" /tmp/PikaDJ/resourceIDs.tmp
-            echo "micspamEnable" >> stdin
-            appIndex=0
-            while [[ $appIndex != "null" ]]; do
-                while read line; do
-                    case $line in
-                        index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
-                        application.name\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex "null_TF2Micspam.monitor"; appIndex="null"; break; fi ;;
-                    esac
-                done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
-            done
-            pacmd set-default-sink $defaultSink >/dev/null 2>/dev/null
-        fi
-        sleep $(to_seconds "$lengthWhole")$lengthMS
-        kill -9 $avplayProcId >/dev/null 2>/dev/null
-        wait $avplayProcId >/dev/null 2>/dev/null
-        if [[ $shouldLoopback != "0" ]]; then
-            echo "micspamEnable" >> stdin
-            appIndex=0
-            while [[ $appIndex != "null" ]]; do
-                while read sourceLine; do
-                    case $sourceLine in
-                        index:\ *) appIndex=$(echo "$sourceLine" | sed -e 's/.*index: \(.*\)/\1/') ;;
-                        application.name\ =\ *) if [[ $(echo "$sourceLine" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex $(pacmd list-sources | grep -i \* | sed -e 's/.*index: \(.*\)/\1/'); appIndex="null"; break; fi ;;
-                    esac
-                done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
-            done
-        fi
-        echo "micspamDisable" >> stdin
-    fi
+if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
+	ranCmdFull=$(echo "$ranCmdFull" | tr -cd '[:print:]')
+	echo "$tUser said: $ranCmdFull"
+	if $ttsShrek; then ttsVoice="en-scottish"; else ttsVoice="default"; fi
+	if $ttsVagineer; then
+		echo "$ranCmdFull" | rev | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav reverse
+	else
+		echo "$ranCmdFull" | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav
+	fi
+	length=$(avprobe ../voice_input.wav 2>&1 | sed -n -e 's/^.*Duration: \([0-9:\.]\{11\}\),.*$/\1/p')
+	lengthWhole=$(echo "$length" | sed -e 's/\.[0-9]\{2\}$//')
+	lengthMS=$(echo "$length" | sed -e 's/^.*\(\.[0-9]\{2\}\)$/\1/')
+	echo "micspamEnable" >> stdin
+	if [[ $shouldLoopback != "0" ]]; then
+		avplay -i ../voice_input.wav -nodisp >/dev/null 2>/dev/null &
+		avplayProcId=$!
+		sed -i -e "s/a.*/a$avplayProcId/" /tmp/PikaDJ/resourceIDs.tmp
+		echo "micspamEnable" >> stdin
+		appIndex=0
+		while [[ $appIndex != "null" ]]; do
+			while read line; do
+				case $line in
+					index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
+					application.name\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex "null_TF2Micspam.monitor"; appIndex="null"; break; fi ;;
+				esac
+			done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+		done
+		pacmd set-default-sink $defaultSink >/dev/null 2>/dev/null
+	fi
+	sleep $(to_seconds "$lengthWhole")$lengthMS
+	kill -9 $avplayProcId >/dev/null 2>/dev/null
+	wait $avplayProcId >/dev/null 2>/dev/null
+	if [[ $shouldLoopback != "0" ]]; then
+		echo "micspamEnable" >> stdin
+		appIndex=0
+		while [[ $appIndex != "null" ]]; do
+			while read sourceLine; do
+				case $sourceLine in
+					index:\ *) appIndex=$(echo "$sourceLine" | sed -e 's/.*index: \(.*\)/\1/') ;;
+					application.name\ =\ *) if [[ $(echo "$sourceLine" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex $(pacmd list-sources | grep -i \* | sed -e 's/.*index: \(.*\)/\1/'); appIndex="null"; break; fi ;;
+				esac
+			done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+		done
+	fi
+	echo "micspamDisable" >> stdin
 elif [[ $ranCmd != $line ]]
 then
 case $ranCmdLower in
-    skip)
-        #echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-        echo "[$tUser] Voted to skip Song!"
-        if [[ $(getSongInfo) == "" ]]; then
-            echo "say [PikaDJ] No song is playing!" >> stdin
-            continue
-        else
-            voteCount=$(wc -l /tmp/PikaDJ/voteSkip.tmp | cut -f1 -d' ')
-            if (( voteCount == 0 )); then
-                source ./tf2ConfigFileParser
-                serverPlayers=$(getPlayerCount)
-            fi
-        fi
-        if ! grep -Fxq -- "$tUser" /tmp/PikaDJ/serverPlayers.tmp; then
-            echo "say [PikaDJ] You were not on the server before the first vote, so your vote will not be counted! Sorry!" >> stdin
-            continue
-        elif ! grep -Fxq -- "$tUser" /tmp/PikaDJ/voteSkip.tmp; then
-            (( requiredPercentage > 100 )) && requiredPercentage=100; (( requiredPercentage < 1 )) && requiredPercentage=1
-            echo "$tUser" >> /tmp/PikaDJ/voteSkip.tmp
-            ((voteCount++))
-            if (( serverPlayers*requiredPercentage/100 < voteCount+1 )); then
-                echo "say [PikaDJ] Skipped Song!" >> stdin
-                echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-                > /tmp/PikaDJ/voteSkip.tmp
-            else
-                if ((serverPlayers*requiredPercentage/100-voteCount == 1)); then voteString="vote is"; else voteString="votes are"; fi
-                echo "say \"[PikaDJ] $((serverPlayers*requiredPercentage/100-voteCount)) more $voteString required to skip this song!\"" >> stdin
-            fi
-        else
-            echo "say \"[PikaDJ] You have already voted $tUser!\"" >> stdin
-        fi
-        ;;
-    play)
-        #echo "[$tUser] Playing!"
-        #echo "say [PikaDJ] Playing!" >> stdin
-        #if [ "$shouldLoopback" != "0" ]; then
-            #pacmd set-default-sink $nullSink
-            #avplay -i
-        #fi
-        ;;
-    stop)
-        #if [ "$shouldLoopback" == "0" ]; then
-            #echo "micspamDisable" >> stdin
-        #fi
-        #echo "[$tUser] Stopped!"
-        #echo "say [PikaDJ] Stopped!" >> stdin
-        ;;
-    help)
-        #echo "[$tUser] Sent help!"
+	skip)
+		#echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+		echo "[$tUser] Voted to skip Song!"
+		if [[ $(getSongInfo) == "" ]]; then
+			echo "say [PikaDJ] No song is playing!" >> stdin
+			continue
+		else
+			voteCount=$(wc -l /tmp/PikaDJ/voteSkip.tmp | cut -f1 -d' ')
+			if (( voteCount == 0 )); then
+				source ./tf2ConfigFileParser
+				serverPlayers=$(getPlayerCount)
+			fi
+		fi
+		if ! grep -Fxq -- "$tUser" /tmp/PikaDJ/serverPlayers.tmp; then
+			echo "say [PikaDJ] You were not on the server before the first vote, so your vote will not be counted! Sorry!" >> stdin
+			continue
+		elif ! grep -Fxq -- "$tUser" /tmp/PikaDJ/voteSkip.tmp; then
+			(( requiredPercentage > 100 )) && requiredPercentage=100; (( requiredPercentage < 1 )) && requiredPercentage=1
+			echo "$tUser" >> /tmp/PikaDJ/voteSkip.tmp
+			((voteCount++))
+			if (( serverPlayers*requiredPercentage/100 < voteCount+1 )); then
+				echo "say [PikaDJ] Skipped Song!" >> stdin
+				echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+				> /tmp/PikaDJ/voteSkip.tmp
+			else
+				if ((serverPlayers*requiredPercentage/100-voteCount == 1)); then voteString="vote is"; else voteString="votes are"; fi
+				echo "say \"[PikaDJ] $((serverPlayers*requiredPercentage/100-voteCount)) more $voteString required to skip this song!\"" >> stdin
+			fi
+		else
+			echo "say \"[PikaDJ] You have already voted $tUserEscaped!\"" >> stdin
+		fi
+		;;
+	play)
+		#echo "[$tUser] Playing!"
+		#echo "say [PikaDJ] Playing!" >> stdin
+		#if [ "$shouldLoopback" != "0" ]; then
+			#pacmd set-default-sink $nullSink
+			#avplay -i
+		#fi
+		;;
+	stop)
+		#if [ "$shouldLoopback" == "0" ]; then
+			#echo "micspamDisable" >> stdin
+		#fi
+		#echo "[$tUser] Stopped!"
+		#echo "say [PikaDJ] Stopped!" >> stdin
+		;;
+	help)
+		#echo "[$tUser] Sent help!"
 	#echo "say [PikaDJ] Commands: !pikaplay - start playing, !pikastop - stop music..." >> stdin
-        #sleep 1.2
-        #echo "say [PikaDJ] Commands: !pikaskip - skip song, !pikainfo/!pikasong - get the currently playing song" >> stdin
-        ;;
-    info|song)
-        echo "[$tUser] Sent song info!"
-        saySongInfo
-        ;;
-    boom)
-        if $funEnabled; then
-            echo "[$tUser] Blew me up!"
-            echo "say \"Initiating self destruct sequence...\"; explode" >> stdin
-        fi
-        ;;
-    say\ *)
-        if $funEnabled; then
-            phrase=$(echo "$ranCmd" | sed -e 's/say \([^ ].*\)/\1/I')
-            if [[ $phrase != $ranCmd ]]; then
-                if [[ $phrase == \!* || $phrase == /* ]]; then
-                    echo "[$tUser] tried to make me say $phrase!"
-                    echo "say \"Sorry $tUser, but I will not run commands!\"" >> stdin
-                else
-                    echo "[$tUser] made me say $phrase!"
-                    echo "say \"$phrase\"" >> stdin
-                fi
-            fi
-        fi
-        ;;
-    yt\ *)
-        if true; then
-            echo "[$tUser] requested a youtube video!"
-            #echo "say \"[PikaDJ] Getting video info...\"" >> stdin
-            videoUrl=$(echo "$ranCmd" | sed -e 's/yt \([^ ].*\)/\1/I')
-            ./tf2YoutubeDownloader "$videoUrl" "$tUser" &
-        fi
-        ;;
-    yts\ *)
-        if true; then
-            echo "[$tUser] requested a youtube video!"
-            query=$(urlencode "$(echo $ranCmd | sed -e 's/yts \([^ ].*\)/\1/I')")
-            echo "$query"
-            videoUrl=$(curl "https://gdata.youtube.com/feeds/api/videos?q=$query&max-results=1&alt=json&v=2" 2>/dev/null | sed -e 's/.*"href":"\(https:\/\/www\.youtube\.com\/watch?v=[^"]*\)".*/\1/')
-            echo "$videoUrl"
-            ./tf2YoutubeDownloader "$videoUrl" "$tUser" &
-        fi
-        ;;
-    *)
-        ;;
-        #echo "[$tUser] I'm sorry $tUser, but $ranCmdFull is not a programmed command."
-        #echo "say [PikaDJ] I'm sorry $tUser, but $ranCmdFull is not a programmed command." >> stdin
+		#sleep 1.2
+		#echo "say [PikaDJ] Commands: !pikaskip - skip song, !pikainfo/!pikasong - get the currently playing song" >> stdin
+		;;
+	info|song)
+		echo "[$tUser] Sent song info!"
+		saySongInfo
+		;;
+	boom)
+		if $funEnabled; then
+			echo "[$tUser] Blew me up!"
+			echo "say \"Initiating self destruct sequence...\"; explode" >> stdin
+		fi
+		;;
+	say\ *)
+		if $funEnabled; then
+			phrase=$(echo "$ranCmdEscaped" | sed -e 's/say \([^ ].*\)/\1/I')
+			if [[ $phrase != $ranCmdEscaped ]]; then
+				if [[ $phrase == \!* || $phrase == /* ]]; then
+					echo "[$tUser] tried to make me say $phrase!"
+					echo "say \"Sorry $tUserEscaped, but I will not run commands!\"" >> stdin
+				else
+					echo "[$tUser] made me say $phrase!"
+					echo "say \"$phrase\"" >> stdin
+				fi
+			fi
+		fi
+		;;
+	yt\ *)
+		if true; then
+			echo "[$tUser] requested a youtube video!"
+			#echo "say \"[PikaDJ] Getting video info...\"" >> stdin
+			videoUrl=$(echo "$ranCmd" | sed -e 's/yt \([^ ].*\)/\1/I')
+			./tf2YoutubeDownloader "$videoUrl" "$tUserEscaped" &
+		fi
+		;;
+	yts\ *)
+		if true; then
+			echo "[$tUser] requested a youtube video!"
+			query=$(urlencode "$(echo $ranCmd | sed -e 's/yts \([^ ].*\)/\1/I')")
+			echo "$query"
+			videoUrl=$(curl "https://gdata.youtube.com/feeds/api/videos?q=$query&max-results=1&alt=json&v=2" 2>/dev/null | sed -e 's/.*"href":"\(https:\/\/www\.youtube\.com\/watch?v=[^"]*\)".*/\1/')
+			echo "$videoUrl"
+			./tf2YoutubeDownloader "$videoUrl" "$tUserEscaped" &
+		fi
+		;;
+	*)
+		;;
+		#echo "[$tUser] I'm sorry $tUser, but $ranCmdFull is not a programmed command."
+		#echo "say [PikaDJ] I'm sorry $tUserEscaped, but $ranCmdFullEscaped is not a programmed command." >> stdin
 esac
 else
-    case $line in
-        sendSongInfo)
-            echo "Sent song info due to bind!"
-            saySongInfo
-            ;;
-        sendHelp)
-            echo "Sent help due to bind!"
-            echo "say [PikaDJ] Commands: !pikayts song name - Request song from youtube, !pikayt youtubeURL - request song by URL..." >> stdin
-            sleep 1.2
-            echo "say [PikaDJ] Commands: !pikaskip - initiate a vote to skip song, !pikainfo/!pikasong - get the currently playing song." >> stdin
-            ;;
-        resetMic)
-            if [[ $shouldLoopback == "0" ]]; then
-                echo "Could not reset mic source due to server mode!"
-            else
-                echo "Reset mic source due to bind!"
-                echo "micspamEnable" >> stdin
-                appIndex=0
-                while [[ $appIndex != "null" ]]; do
-                    while read sourceLine; do
-                        case $sourceLine in
-                            index:\ *) appIndex=$(echo "$sourceLine" | sed -e 's/.*index: \(.*\)/\1/') ;;
-                            application.name\ =\ *) if [[ $(echo "$sourceLine" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex $(pacmd list-sources | grep -i \* | sed -e 's/.*index: \(.*\)/\1/'); appIndex="null"; break; fi ;;
-                        esac
-                    done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
-                done
-                echo "micspamDisable" >> stdin
-            fi
-            ;;
-        Team\ Fortress)
-            echo "Re-initializing..."
-            cleanup
-            init
-            ;;
-        playMusic)
-            echo "Resumed playing due to bind!"
-            echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-            ;;
-        stopMusic)
-            echo "Stopped playing due to bind!"
-            echo "stop" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-            ;;
-        skipMusic)
-            echo "Skipped song due to bind!"
-            echo "say [PikaDJ] Skipped Song!" >> stdin
-            echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-            > /tmp/PikaDJ/voteSkip.tmp
-            ;;
-        clearMusic)
-            echo "Cleared playlist due to bind!"
-            echo "say [PikaDJ] Cleared playlist!" >> stdin
-            echo "clear" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-            rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
-            ;;
-        *)
-            ;;
-    esac
+	case $line in
+		sendSongInfo)
+			echo "Sent song info due to bind!"
+			saySongInfo
+			;;
+		sendHelp)
+			echo "Sent help due to bind!"
+			echo "say [PikaDJ] Commands: !pikayts song name - Request song from youtube, !pikayt youtubeURL - request song by URL..." >> stdin
+			sleep 1.2
+			echo "say [PikaDJ] Commands: !pikaskip - initiate a vote to skip song, !pikainfo/!pikasong - get the currently playing song." >> stdin
+			;;
+		resetMic)
+			if [[ $shouldLoopback == "0" ]]; then
+				echo "Could not reset mic source due to server mode!"
+			else
+				echo "Reset mic source due to bind!"
+				echo "micspamEnable" >> stdin
+				appIndex=0
+				while [[ $appIndex != "null" ]]; do
+					while read sourceLine; do
+						case $sourceLine in
+							index:\ *) appIndex=$(echo "$sourceLine" | sed -e 's/.*index: \(.*\)/\1/') ;;
+							application.name\ =\ *) if [[ $(echo "$sourceLine" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex $(pacmd list-sources | grep -i \* | sed -e 's/.*index: \(.*\)/\1/'); appIndex="null"; break; fi ;;
+						esac
+					done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+				done
+				echo "micspamDisable" >> stdin
+			fi
+			;;
+		Team\ Fortress)
+			echo "Re-initializing..."
+			cleanup
+			init
+			;;
+		playMusic)
+			echo "Resumed playing due to bind!"
+			echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+			;;
+		stopMusic)
+			echo "Stopped playing due to bind!"
+			echo "stop" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+			;;
+		skipMusic)
+			echo "Skipped song due to bind!"
+			echo "say [PikaDJ] Skipped Song!" >> stdin
+			echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+			> /tmp/PikaDJ/voteSkip.tmp
+			;;
+		clearMusic)
+			echo "Cleared playlist due to bind!"
+			echo "say [PikaDJ] Cleared playlist!" >> stdin
+			echo "clear" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+			rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
+			;;
+		*)
+			;;
+	esac
 fi
 done

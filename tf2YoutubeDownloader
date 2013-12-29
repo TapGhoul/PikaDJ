@@ -9,14 +9,14 @@ songDuration=""
 source ./tf2ConfigFileParser
 if $ttsEnabled; then exit 0; fi
 if ((maxQueueSize == 0)); then
-    echo "say \"[PikaDJ] Sorry $2, but I am currently refusing requests!\"" >> stdin
-    exit 1
+	echo "say \"[PikaDJ] Sorry $2, but I am currently refusing requests!\"" >> stdin
+	exit 1
 elif ((maxQueueSize > 0)); then
-    lineCount=$(echo "playlist" | nc -w 5 127.0.0.1 $vlcPort | sed -e 's/[\r\n]//g' | sed -n -e 's/^|   [0-9]* - \(.*\) ([0-9:]*)$/\1/p' | wc -l)
-    if ((lineCount >= maxQueueSize)); then
-        echo "say \"[PikaDJ] Sorry $2, but I am currently refusing requests until the queue clears up. Try again later!\"" >> stdin
-        exit 1
-    fi
+	lineCount=$(echo "playlist" | nc -w 5 127.0.0.1 $vlcPort | sed -e 's/[\r\n]//g' | sed -n -e 's/^|   [0-9]* - \(.*\) ([0-9:]*)$/\1/p' | wc -l)
+	if ((lineCount >= maxQueueSize)); then
+		echo "say \"[PikaDJ] Sorry $2, but I am currently refusing requests until the queue clears up. Try again later!\"" >> stdin
+		exit 1
+	fi
 fi
 #echo "say \"[PikaDJ] I am currently refusing requests, because I have to reload the script after this queue. Sorry!\"" >> stdin
 #echo "say \"[PikaDJ] I am currently refusing requests, because I have to enable autoplay after this queue (so I can go AFK). Sorry!\"" >> stdin
@@ -24,78 +24,78 @@ fi
 #exit 0
 #filename=$(youtube-dl -o "%(title)s.%(ext)s" --get-filename "$1")
 while read line; do
-    case $line in
-        {\"upload_date\":\ *)
-            #echo "Metadata"
-            songDuration=$(echo "$line" | sed -e 's/.*"duration": "\([0-9]*\)".*/\1/')
-            songDescription=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"description": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
-            uploaderName=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"uploader": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
-            uploaderID=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"uploader_id": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
-            ;;
-        *)
-            #echo "Other data"
-            title="$line"
-            filename="$line.wav"
-            ;;
-    esac
+	case $line in
+		{\"upload_date\":\ *)
+			#echo "Metadata"
+			songDuration=$(echo "$line" | sed -e 's/.*"duration": "\([0-9]*\)".*/\1/')
+			songDescription=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"description": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
+			uploaderName=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"uploader": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
+			uploaderID=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"uploader_id": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
+			;;
+		*)
+			#echo "Other data"
+			title="$line"
+			filename="$line.wav"
+			;;
+	esac
 done < <(youtube-dl -o "%(title)s" --no-playlist -j --get-filename --no-check-certificate "$1" 2>/dev/null)
 if [[ $filename != "" ]]; then
-    for word in "${bannedWords[@]}"; do
-        if [[ $songDescription =~ $word ]] || [[ $uploaderName =~ $word ]] || [[ $uploaderID =~ $word ]] || [[ $(echo "$filename" | sed -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]') =~ $word ]]; then
-            echo "$title is blocked by the filter $word! I can't play it!"
-            echo "say \"[PikaDJ] Sorry, but $title is blocked by my filter ($word), so I can't play it!\"" >> stdin
-            exit 1
-        fi
-    done
-    songDurationPrintable=$(printf %02d:%02d $(( songDuration / 60)) $(( songDuration % 60 )))
-    minSongLengthPrintable=$(printf %02d:%02d $(( minSongLength / 60)) $(( minSongLength % 60 )))
-    maxSongLengthPrintable=$(printf %02d:%02d $(( maxSongLength / 60)) $(( maxSongLength % 60 )))
-    #echo "Song duration: $songDurationPrintable"
-    if (( songDuration > maxSongLength )); then
-        echo "$title is more than $maxSongLengthPrintable! It is $songDurationPrintable"
-        echo "say \"[PikaDJ] $title is too long! Sorry!\"" >> stdin
-        exit 1
-    elif (( songDuration < minSongLength )); then
-        echo "$title is less than $minSongLengthPrintable! It is $songDurationPrintable"
-        echo "say \"[PikaDJ] $title is too short! Sorry!\"" >> stdin
-        exit 1
-    else
-        echo "$title is an acceptable length! It is $songDurationPrintable"
-    fi
-    fixedname=$(echo $filename | tr -cd '[:print:]')
-    cd ~/Music/youtubeRequests/
-    if [[ ! -f "fixedName/$fixedname" ]]; then
-        echo "say \"[PikaDJ] Preparing \"$title\"...\"" >> "$currDir/stdin"
-        if [[ ! -f "$filename" ]]; then
-            youtube-dl -q -f "139/140/17/36/5" -x --audio-format "wav" --no-playlist --no-check-certificate -o "%(title)s.%(ext)s" "$1"
-            downloadStatus=$?
-        else
-            downloadStatus=0
-        fi
-        if [[ $downloadStatus == 0 ]]; then
-            cp -f "$filename" "fixedName/$fixedname"
-            #avconv -y -i "$filename" "converted/${filename%.*}.wav" >/dev/null 2>/dev/null
-            cd fixedName
-            echo "enqueue $PWD/$fixedname" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-            cd "$currDir"
-            source ./tf2ConfigFileParser
-            if $autoplay; then echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null; fi
-            #echo "say \"[PikaDJ] $title has downloaded and is ready to play!\"" >> stdin
-            echo "$title is now ready to play!"
-        else
-            cd "$currDir"
-            echo "Youtube download failed!"
-            echo "say \"[PikaDJ] There was an error downloading $title! Try again later!\"" >> stdin
-            exit 1
-        fi
-    else
-        cd "$currDir"
-        echo "$title already exists in the playlist!"
-        echo "say \"[PikaDJ] $title is already in the playlist! Sorry!\"" >> stdin
-        exit 1
-    fi
+	for word in "${bannedWords[@]}"; do
+		if [[ $songDescription =~ $word ]] || [[ $uploaderName =~ $word ]] || [[ $uploaderID =~ $word ]] || [[ $(echo "$filename" | sed -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]') =~ $word ]]; then
+			echo "$title is blocked by the filter $word! I can't play it!"
+			echo "say \"[PikaDJ] Sorry, but $title is blocked by my filter ($word), so I can't play it!\"" >> stdin
+			exit 1
+		fi
+	done
+	songDurationPrintable=$(printf %02d:%02d $(( songDuration / 60)) $(( songDuration % 60 )))
+	minSongLengthPrintable=$(printf %02d:%02d $(( minSongLength / 60)) $(( minSongLength % 60 )))
+	maxSongLengthPrintable=$(printf %02d:%02d $(( maxSongLength / 60)) $(( maxSongLength % 60 )))
+	#echo "Song duration: $songDurationPrintable"
+	if (( songDuration > maxSongLength )); then
+		echo "$title is more than $maxSongLengthPrintable! It is $songDurationPrintable"
+		echo "say \"[PikaDJ] $title is too long! Sorry!\"" >> stdin
+		exit 1
+	elif (( songDuration < minSongLength )); then
+		echo "$title is less than $minSongLengthPrintable! It is $songDurationPrintable"
+		echo "say \"[PikaDJ] $title is too short! Sorry!\"" >> stdin
+		exit 1
+	else
+		echo "$title is an acceptable length! It is $songDurationPrintable"
+	fi
+	fixedname=$(echo $filename | tr -cd '[:print:]')
+	cd ~/Music/youtubeRequests/
+	if [[ ! -f "fixedName/$fixedname" ]]; then
+		echo "say \"[PikaDJ] Preparing \"$title\"...\"" >> "$currDir/stdin"
+		if [[ ! -f "$filename" ]]; then
+			youtube-dl -q -f "139/140/17/36/5" -x --audio-format "wav" --no-playlist --no-check-certificate -o "%(title)s.%(ext)s" "$1"
+			downloadStatus=$?
+		else
+			downloadStatus=0
+		fi
+		if [[ $downloadStatus == 0 ]]; then
+			cp -f "$filename" "fixedName/$fixedname"
+			#avconv -y -i "$filename" "converted/${filename%.*}.wav" >/dev/null 2>/dev/null
+			cd fixedName
+			echo "enqueue $PWD/$fixedname" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+			cd "$currDir"
+			source ./tf2ConfigFileParser
+			if $autoplay; then echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null; fi
+			#echo "say \"[PikaDJ] $title has downloaded and is ready to play!\"" >> stdin
+			echo "$title is now ready to play!"
+		else
+			cd "$currDir"
+			echo "Youtube download failed!"
+			echo "say \"[PikaDJ] There was an error downloading $title! Try again later!\"" >> stdin
+			exit 1
+		fi
+	else
+		cd "$currDir"
+		echo "$title already exists in the playlist!"
+		echo "say \"[PikaDJ] $title is already in the playlist! Sorry!\"" >> stdin
+		exit 1
+	fi
 else
-    echo "say \"[PikaDJ] Sorry $2, but there was an error getting the video info! Try again later!\"" >> stdin
-    exit 1
+	echo "say \"[PikaDJ] Sorry $2, but there was an error getting the video info! Try again later!\"" >> stdin
+	exit 1
 fi
 exit 0

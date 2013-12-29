@@ -73,7 +73,8 @@ if [[ $filename != "" ]]; then
 			downloadStatus=0
 		fi
 		if [[ $downloadStatus == 0 ]]; then
-			cp -f "$filename" "fixedName/$fixedname"
+			#cp -f "$filename" "fixedName/$fixedname"
+			sox "$filename" "fixedName/$fixedname" gain -B -n -1 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse
 			#avconv -y -i "$filename" "converted/${filename%.*}.wav" >/dev/null 2>/dev/null
 			cd fixedName
 			echo "enqueue $PWD/$fixedname" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null

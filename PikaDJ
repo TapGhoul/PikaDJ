@@ -359,7 +359,7 @@ else
 				echo "micspamDisable" >> stdin
 			fi
 			;;
-		reloadPikaDJ)
+		The\ server\ is\ using\ sv_pure\ *)
 			echo "Re-initializing..."
 			cleanup
 			init

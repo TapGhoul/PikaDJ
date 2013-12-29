@@ -53,7 +53,6 @@ Installation:
 	// These keybinds are easily modifiable, so feel free to change them to suit your needs. //
 	// Their command needs to stay the same, but you can bind them to different keys, or even use aliases! //
 	// Start keybinds for PikaDJ //
-	echo reloadPikaDJ // Reload PikaDJ on server change
 	bind KP_UPARROW "echo playMusic" // Play current song
 	bind KP_DOWNARROW "echo stopMusic" // Stop current song
 	bind KP_HOME "echo skipMusic" // Skip current song

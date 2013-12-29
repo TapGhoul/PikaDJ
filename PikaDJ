@@ -63,15 +63,15 @@ getLastSong() {
 
 getPlayerCount() {
 	rm /tmp/PikaDJ/serverPlayers.tmp >/dev/null 2>/dev/null
-	> ../tf/console.log
-	(sleep 0.2; while true; do > ../tf/console.log; echo "status" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
+	> ../"$modName"/console.log
+	(sleep 0.2; while true; do > ../"$modName"/console.log; echo "status" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
 	pidToKill=$!
-	watch -g -n 0.1 'grep "players : [0-9]*" ../tf/console.log' >/dev/null 2>/dev/null
-	playerCount=$(grep "players : [0-9]" ../tf/console.log | sed -e 's/players : \([0-9]*\).*/\1/')
+	watch -g -n 0.1 'grep "players : [0-9]*" ../"$modName"/console.log' >/dev/null 2>/dev/null
+	playerCount=$(grep "players : [0-9]" ../"$modName"/console.log | sed -e 's/players : \([0-9]*\).*/\1/')
 	echo $playerCount
 	kill -9 $pidToKill >/dev/null 2>/dev/null
 	wait $pidToKill >/dev/null 2>/dev/null
-	sed -n -e 's/\# \{1,\}[0-9]\{1,\} "\(.\{1,\}\)" \{1,\}STEAM_[0-9]:[0-9]:[0-9]\{1,\} \{1,\}[0-9:]\{5,\} \{1,\}[0-9]\{1,\} \{1,\}[0-9]\{1,\} [a-z].\{1,\}/\1/p' ../tf/console.log | while read line; do echo "$line" >> /tmp/PikaDJ/serverPlayers.tmp; done
+	sed -n -e 's/\# \{1,\}[0-9]\{1,\} "\(.\{1,\}\)" \{1,\}STEAM_[0-9]:[0-9]:[0-9]\{1,\} \{1,\}[0-9:]\{5,\} \{1,\}[0-9]\{1,\} \{1,\}[0-9]\{1,\} [a-z].\{1,\}/\1/p' ../"$modName"/console.log | while read line; do echo "$line" >> /tmp/PikaDJ/serverPlayers.tmp; done
 }
 
 init() {
@@ -80,10 +80,10 @@ init() {
 	echo "alias micspamEnable \"volume 100; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable\"" >> stdin
 	echo "alias micspamDisable \"volume 100; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable\"" >> stdin
 	echo "alias micspamToggle micspamEnable" >> stdin
-	(while true; do > ../tf/console.log; echo "sv_use_steam_voice" >> stdin; sleep 2; done) & >/dev/null 2>/dev/null
+	(while true; do > ../"$modName"/console.log; echo "sv_use_steam_voice" >> stdin; sleep 2; done) & >/dev/null 2>/dev/null
 	pidToKill=$!
-	watch -g -n 0.1 'grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../tf/console.log' >/dev/null 2>/dev/null
-	shouldLoopback=$(grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../tf/console.log | tail -1 | sed -e 's/.*\"sv_use_steam_voice\" = \"\(.\)\".*/\1/')
+	watch -g -n 0.1 'grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../"$modName"/console.log' >/dev/null 2>/dev/null
+	shouldLoopback=$(grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../"$modName"/console.log | tail -1 | sed -e 's/.*\"sv_use_steam_voice\" = \"\(.\)\".*/\1/')
 	kill -9 $pidToKill >/dev/null 2>/dev/null
 	wait $pidToKill >/dev/null 2>/dev/null
 	echo "shouldLoopback: $shouldLoopback"
@@ -173,7 +173,7 @@ cleanupExit() {
 trap 'cleanupExit' EXIT
 init
 
-tail -f ../tf/console.log -n1 | while read line ; do
+tail -f ../"$modName"/console.log -n1 | while read line ; do
 tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\) :  .*/\1/')
 tUserEscaped=$(echo "$tUser" | sed -e 's/\"/\\\"/g')
 #ranCmd=$(echo "$line" | sed -e 's/.* :  !pika\(.*\)/\1/' -e 's/\"/\\\"/g')
@@ -359,7 +359,7 @@ else
 				echo "micspamDisable" >> stdin
 			fi
 			;;
-		Team\ Fortress)
+		reloadPikaDJ)
 			echo "Re-initializing..."
 			cleanup
 			init

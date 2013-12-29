@@ -1,6 +1,7 @@
 #!/bin/bash
 
 commandPrefix=!pika
+modName=tf
 autoplay=true
 vlcPort=1234
 minSongLength=15
@@ -27,6 +28,9 @@ if [[ $lineSetting == "" ]]; then continue; fi
 case $lineSetting in
 	commandPrefix)
 		commandPrefix="$lineValue"
+		;;
+	modName)
+		modName="$lineValue"
 		;;
 	autoplay)
 		if [[ $lineValue == true ]]; then

@@ -82,7 +82,7 @@ init() {
 	echo "alias micspamToggle micspamEnable" >> stdin
 	(while true; do > ../"$modName"/console.log; echo "sv_use_steam_voice" >> stdin; sleep 2; done) & >/dev/null 2>/dev/null
 	pidToKill=$!
-	watch -g -n 0.1 'grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../"$modName"/console.log' >/dev/null 2>/dev/null
+	watch -g -n 0.1 'grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../'"$modName"'/console.log' >/dev/null 2>/dev/null
 	shouldLoopback=$(grep "\"sv_use_steam_voice\" = \"[0-9]\"" ../"$modName"/console.log | tail -1 | sed -e 's/.*\"sv_use_steam_voice\" = \"\(.\)\".*/\1/')
 	kill -9 $pidToKill >/dev/null 2>/dev/null
 	wait $pidToKill >/dev/null 2>/dev/null

@@ -184,6 +184,7 @@ ranCmdLower=$(echo "$ranCmd" | tr '[:upper:]' '[:lower:]')
 if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 	ranCmdFull=$(echo "$ranCmdFull" | tr -cd '[:print:]')
 	echo "$tUser said: $ranCmdFull"
+	pacmd set-default-sink $nullSink >/dev/null 2>/dev/null
 	if $ttsShrek; then ttsVoice="en-scottish"; else ttsVoice="default"; fi
 	if $ttsVagineer; then
 		echo "$ranCmdFull" | rev | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav reverse trim 0 3 pad 0.5 0 silence 1 0.1 0.01% >/dev/null 2>/dev/null

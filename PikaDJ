@@ -66,7 +66,7 @@ getPlayerCount() {
 	> ../"$modName"/console.log
 	(sleep 0.2; while true; do > ../"$modName"/console.log; echo "status" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
 	pidToKill=$!
-	watch -g -n 0.1 'grep "players : [0-9]*" ../"$modName"/console.log' >/dev/null 2>/dev/null
+	watch -g -n 0.1 'grep "players : [0-9]*" ../'"$modName"'/console.log' >/dev/null 2>/dev/null
 	playerCount=$(grep "players : [0-9]" ../"$modName"/console.log | sed -e 's/players : \([0-9]*\).*/\1/')
 	echo $playerCount
 	kill -9 $pidToKill >/dev/null 2>/dev/null

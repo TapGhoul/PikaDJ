@@ -90,7 +90,6 @@ do
 		echo "micspamDisable" >> stdin
 		kill -9 $avplayProcId >/dev/null 2>/dev/null
 		wait $avplayProcId >/dev/null 2>/dev/null
-		pacmd set-default-sink $nullSink >/dev/null 2>/dev/null
 		songFile=$(echo "status" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> ( new input: file:\/\/\(.*\) ).*/\1/p')
 		if ! [[ $songFile =~ ^.*\.wav$ ]]; then
 			avconv -y -i "$songFile" /tmp/PikaDJ/soxin.wav >/dev/null 2>/dev/null
@@ -113,7 +112,15 @@ do
 					esac
 				done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
 			done
-			pacmd set-default-sink $defaultSink >/dev/null 2>/dev/null
+			appIndex=0
+			while [[ $appIndex != "null" ]]; do
+				while read line; do
+					case $line in
+						index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
+						application.process.id\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.process\.id = \"\(.*\)\"/\1/') == "$avplayProcId" ]]; then echo "Found it at $appIndex"; pacmd move-sink-input $appIndex "null_TF2Micspam"; appIndex="null"; break; fi ;;
+					esac
+				done < <(pacmd list-sink-inputs) >/dev/null 2>/dev/null
+			done
 		fi
 		echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
 		echo "seek 0" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null

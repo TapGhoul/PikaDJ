@@ -173,6 +173,8 @@ cleanupExit() {
 trap 'cleanupExit' EXIT
 init
 
+#ttsVoice="default"
+
 tail -f ../"$modName"/console.log -n1 | while read line ; do
 tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\) :  .*/\1/')
 tUserEscaped=$(echo "$tUser" | sed -e 's/\"/\\\"/g')
@@ -183,8 +185,8 @@ ranCmdFull=$(echo "$line" | sed -e 's/.* :  \(.*\)/\1/')
 ranCmdLower=$(echo "$ranCmd" | tr '[:upper:]' '[:lower:]')
 if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 	ranCmdFull=$(echo "$ranCmdFull" | tr -cd '[:print:]')
+	#if [[ $ranCmdFull =~ ^!voice\ .* ]]; then ttsVoice=$(echo "$ranCmdFull" | sed -e 's/^!voice //I'); ranCmdFull="Now using voice: $ttsVoice"; fi
 	echo "$tUser said: $ranCmdFull"
-	pacmd set-default-sink $nullSink >/dev/null 2>/dev/null
 	if $ttsShrek; then ttsVoice="en-scottish"; else ttsVoice="default"; fi
 	if $ttsVagineer; then
 		echo "$ranCmdFull" | rev | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav reverse trim 0 3 pad 0.5 0 silence 1 0.1 0.01% >/dev/null 2>/dev/null
@@ -209,7 +211,15 @@ if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 				esac
 			done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
 		done
-		pacmd set-default-sink $defaultSink >/dev/null 2>/dev/null
+		appIndex=0
+		while [[ $appIndex != "null" ]]; do
+			while read line; do
+				case $line in
+					index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
+					application.process.id\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.process\.id = \"\(.*\)\"/\1/') == "$avplayProcId" ]]; then echo "Found it at $appIndex"; pacmd move-sink-input $appIndex "null_TF2Micspam"; appIndex="null"; break; fi ;;
+				esac
+			done < <(pacmd list-sink-inputs) >/dev/null 2>/dev/null
+		done
 	fi
 	sleep $(to_seconds "$lengthWhole")$lengthMS
 	kill -9 $avplayProcId >/dev/null 2>/dev/null

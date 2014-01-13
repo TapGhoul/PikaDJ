@@ -69,7 +69,7 @@ case $lineSetting in
 		fi
 		;;
 	maxQueueSize)
-		if [[ $lineValue =~ ^[0-9]+$ ]]; then
+		if [[ $lineValue =~ ^[-0-9]+$ ]]; then
 			maxQueueSize=$((lineValue))
 		else
 			echo "In config file, maxQueueSize is invalid! Using fallback defaults..."

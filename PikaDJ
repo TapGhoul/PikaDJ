@@ -108,15 +108,15 @@ init() {
 	#ScheduledCommands_PID=$!
 
 	#pactl unload-module $nullSink
-
-	defaultSink=$(pacmd list-sinks | grep "\* index" | sed -e 's/^.*index: \(.*\)$/\1/')
-	nullSink=$(pactl load-module module-null-sink sink_name="null_TF2Micspam" sink_properties=device.description="TF2_Micspam_Null_Sink")
-
+	
 	> /tmp/PikaDJ/voteSkip.tmp
 
 	echo "anope" > /tmp/PikaDJ/resourceIDs.tmp
-	echo "n$nullSink" >> /tmp/PikaDJ/resourceIDs.tmp
-	echo "d$defaultSink" >> /tmp/PikaDJ/resourceIDs.tmp
+	
+	if [[ $shouldLoopback != "0" ]]; then
+		nullSink=$(pactl load-module module-null-sink sink_name="null_TF2Micspam" sink_properties=device.description="TF2_Micspam_Null_Sink")
+		echo "n$nullSink" >> /tmp/PikaDJ/resourceIDs.tmp
+	fi
 	echo "k$QueueManager_PID" >> /tmp/PikaDJ/resourceIDs.tmp
 	#echo "k$VLC_PID" >> /tmp/PikaDJ/resourceIDs.tmp
 	echo "New queue manager PID: $QueueManager_PID"
@@ -135,12 +135,10 @@ cleanup() {
 	#kill -9 $ScheduledCommands_PID
 	#kill -9 $(tail /tmp/PikaDJ/avplayID.tmp)
 	#pactl unload-module $nullSink
-	#pacmd set-default-sink $defaultSink
 	while read line; do
 		lineID=$(echo $line | sed -e 's/.//')
 		case $line in
 			a*) kill -9 $lineID; wait $lineID ;;
-			d*) pacmd set-default-sink $lineID ;;
 			n*) pactl unload-module $lineID ;;
 			k*) kill -9 $lineID; wait $lineID ;;
 		esac
@@ -155,12 +153,10 @@ cleanupExit() {
 	#kill -9 $ScheduledCommands_PID
 	#kill -9 $(tail /tmp/PikaDJ/avplayID.tmp)
 	#pactl unload-module $nullSink
-	#pacmd set-default-sink $defaultSink
 	while read line; do
 		lineID=$(echo $line | sed -e 's/.//')
 		case $line in
 			a*) kill -9 $lineID; wait $lineID ;;
-			d*) pacmd set-default-sink $lineID ;;
 			n*) pactl unload-module $lineID ;;
 			k*) kill -9 $lineID; wait $lineID ;;
 		esac

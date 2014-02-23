@@ -70,7 +70,7 @@ playSong() {
 	if [[ $(getResourceLine p) != "nope" ]]; then
 		echo "Already playing!"
 		return;
-	fi
+	fi	
 	source ./tf2ConfigFileParser
 	if [[ $shouldLoopback != "0" ]]; then
 		setResourceLine p $BASHPID
@@ -106,6 +106,7 @@ playSong() {
 		playerPID=$!
 	fi
 	setResourceLine a "$playerPID"
+	saySongInfo
 	wait "$playerPID" >/dev/null 2>/dev/null
 	removeResourceLine a
 	if [[ $shouldLoopback != "0" ]]; then
@@ -126,6 +127,8 @@ playSong() {
 	source ./tf2ConfigFileParser
 	if $autoplay && (( $(wc -l /tmp/PikaDJ/queue.tmp | cut -f1 -d' ') > 0 )); then
 		playSong &
+	elif (( $(wc -l /tmp/PikaDJ/queue.tmp | cut -f1 -d' ') == 0 )); then
+		rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 	fi
 }
 
@@ -157,6 +160,9 @@ skipSong() {
 	fi
 	echo "micspamDisable" >> stdin
 	removeResourceLine a
+	if (( $(wc -l /tmp/PikaDJ/queue.tmp | cut -f1 -d' ') == 0 )); then
+		rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
+	fi
 }
 
 stopSong() {

@@ -138,7 +138,6 @@ elif [[ $ranCmd != $line ]]
 then
 case $ranCmdLower in
 	skip)
-		#echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
 		echo "[$tUser] Voted to skip Song!"
 		if [[ $(getSongInfo) == "" ]]; then
 			echo "say [PikaDJ] No song is playing!" >> stdin

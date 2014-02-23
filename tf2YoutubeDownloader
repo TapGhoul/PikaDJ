@@ -29,10 +29,10 @@ while read line; do
 	case $line in
 		{\"upload_date\":\ *)
 			#echo "Metadata"
-			songDuration=$(echo "$line" | sed -e 's/.*"duration": "\([0-9]*\)".*/\1/')
-			songDescription=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"description": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
-			uploaderName=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"uploader": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
-			uploaderID=$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"uploader_id": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
+			songDuration="$(echo "$line" | sed -e 's/.*"duration": \([0-9]*\).*/\1/')"
+			songDescription="$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"description": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')"
+			uploaderName="$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"uploader": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')"
+			uploaderID="$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"uploader_id": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')"
 			;;
 		*)
 			#echo "Other data"

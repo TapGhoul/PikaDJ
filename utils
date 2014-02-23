@@ -69,11 +69,22 @@ urlencode() {
 playSong() {
 	if [[ $(getResourceLine p) != "nope" ]]; then
 		echo "Already playing!"
-		return;
-	fi	
+		if [[ $$ == $BASHPID ]]; then
+			return
+		else
+			exit 0
+		fi
+	fi
+	if (( $(wc -l /tmp/PikaDJ/queue.tmp | cut -f1 -d' ') == 0 )); then
+		if [[ $$ == $BASHPID ]]; then
+			return
+		else
+			exit 0
+		fi
+	fi
 	source ./tf2ConfigFileParser
+	setResourceLine p $BASHPID
 	if [[ $shouldLoopback != "0" ]]; then
-		setResourceLine p $BASHPID
 		sox "$(head -1 /tmp/PikaDJ/queue.tmp)" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain1 rate 11025 sinc $sincRange1 bass $bassReduction1 gain -B -n $gain1 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse
 		echo "micspamEnable" >> stdin
 		> /tmp/PikaDJ/voteSkip.tmp
@@ -94,7 +105,7 @@ playSong() {
 			while read line; do
 				case $line in
 					index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
-					application.process.id\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.process\.id = \"\(.*\)\"/\1/') == "$avplayProcId" ]]; then echo "Found it at $appIndex"; pacmd move-sink-input $appIndex "null_TF2Micspam"; appIndex="null"; break; fi ;;
+					application.process.id\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.process\.id = \"\(.*\)\"/\1/') == "$playerPID" ]]; then echo "Found it at $appIndex"; pacmd move-sink-input $appIndex "null_TF2Micspam"; appIndex="null"; break; fi ;;
 				esac
 			done < <(pacmd list-sink-inputs) >/dev/null 2>/dev/null
 		done

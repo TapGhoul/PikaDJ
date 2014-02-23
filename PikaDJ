@@ -217,7 +217,7 @@ case $ranCmdLower in
 			echo "[$tUser] requested a youtube video!"
 			#echo "say \"[PikaDJ] Getting video info...\"" >> stdin
 			videoUrl=$(echo "$ranCmd" | sed -e 's/yt \([^ ].*\)/\1/I')
-			./tf2YoutubeDownloader "$videoUrl" "$tUserEscaped" &
+			./tf2YoutubeDownloader "$videoUrl" "$tUserEscaped" "$shouldLoopback" &
 		fi
 		;;
 	yts\ *)
@@ -227,7 +227,7 @@ case $ranCmdLower in
 			echo "$query"
 			videoUrl=$(curl "https://gdata.youtube.com/feeds/api/videos?q=$query&max-results=1&alt=json&v=2" 2>/dev/null | sed -e 's/.*"href":"\(https:\/\/www\.youtube\.com\/watch?v=[^"]*\)".*/\1/')
 			echo "$videoUrl"
-			./tf2YoutubeDownloader "$videoUrl" "$tUserEscaped" &
+			./tf2YoutubeDownloader "$videoUrl" "$tUserEscaped" "$shouldLoopback" &
 		fi
 		;;
 	*)

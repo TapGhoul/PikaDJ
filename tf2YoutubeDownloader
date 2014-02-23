@@ -2,6 +2,7 @@
 currDir=$PWD
 filename=""
 songDuration=""
+shouldLoopback="$3"
 #if [[ $2 == "[DG] The Alchemist" ]]; then echo "say \"[PikaDJ] Sorry $2, but you have been blocked from requesting songs!\"" >> stdin; exit 0; fi
 #if [[ $2 == "Hun | My Sentry" ]]; then echo "say \"[PikaDJ] Sorry Hun | My Sentry, but you have been blocked from requesting songs!\"" >> stdin; exit 0; fi
 #echo "say \"[PikaDJ] Sorry $2, but I am currently refusing requests, as I have to leave soon!\"" >> stdin

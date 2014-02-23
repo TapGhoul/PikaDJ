@@ -88,7 +88,7 @@ playSong() {
 		sox "$(head -1 /tmp/PikaDJ/queue.tmp)" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain1 rate 11025 sinc $sincRange1 bass $bassReduction1 gain -B -n $gain1 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse
 		echo "micspamEnable" >> stdin
 		> /tmp/PikaDJ/voteSkip.tmp
-		avplay "../voice_input.wav" -nodisp >/dev/null 2>/dev/null &
+		avplay "../voice_input.wav" -nodisp -autoexit >/dev/null 2>/dev/null &
 		playerPID=$!
 		
 		appIndex=0

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Utilities used by a number of components
+
+to_seconds () {
+	IFS=: read h m s <<< "$1"
+	echo $(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
+}
+
+getSongLength() {
+	timeStamp=$(avprobe "$1" 2>&1 | sed -n -e 's/^ *Duration: \([0-9:]*\).*/\1/p')
+	echo $(( $(to_seconds "$timeStamp") + 1))
+}
+
+getSongInfo() {
+	echo "$1" | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
+}
+
+saySongInfo() {
+	#songTitle=$(echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//')
+	songTitle="$(getSongInfo)"
+	if [[ $songTitle != "" ]]; then
+		songInfo="\"$songTitle\""
+	else
+		songInfo='Not currently playing!'
+	fi
+	echo "say [PikaDJ] Now Playing: $songInfo" >> stdin
+}
+
+urlencode() {
+	# urlencode <string>
+
+	local length="${#1}"
+	for (( i = 0 ; i < length ; i++ )); do
+		local c="${1:i:1}"
+		case "$c" in
+			[a-zA-Z0-9.~_-]) printf "$c" ;;
+			' ') printf + ;;
+			*) printf '%%%X' "'$c"
+		esac
+	done
+}

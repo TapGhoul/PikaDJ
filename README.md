@@ -13,7 +13,6 @@ Prerequisites:
 * pulseaudio
 * libav-tools
 * sox
-* VLC
 * netcat
 * youtube-dl (http://rg3.github.io/youtube-dl/download.html)
 	* **MUST BE INSTALLED FROM THE WEBSITE, NOT FROM A PACKAGE MANAGER**

@@ -3,7 +3,6 @@
 commandPrefix=!pika
 modName=tf
 autoplay=true
-vlcPort=1234
 minSongLength=15
 maxSongLength=$((15*60))
 requiredPercentage=26
@@ -37,13 +36,6 @@ case $lineSetting in
 			autoplay=true
 		else
 			autoplay=false
-		fi
-		;;
-	vlcPort)
-		if [[ $lineValue =~ ^[0-9]+$ ]]; then
-  		vlcPort=$((lineValue))
-		else
-			echo "In config file, vlcPort is invalid! Using fallback defaults..."
 		fi
 		;;
 	minSongLength)

@@ -12,34 +12,7 @@ mkdir ~/Music/youtubeRequests/fixedName >/dev/null 2>/dev/null
 rm ../voice_input.wav >/dev/null 2>/dev/null
 rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 
-echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-vlc -I rc --rc-host 127.0.0.1:$vlcPort --novideo 2>/dev/null >/dev/null &
-#VLC_PID=$!
-while true; do
-	echo | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-	if [[ $? == 0 ]]; then
-		break;
-	fi
-done
-echo "volume 0" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-currSong=0
-
-getLastSong() {
-	echo "playlist" | nc -w 5 127.0.0.1 $vlcPort | sed -e 's/[\r\n]//g' | sed -n -e 's/^|   [0-9]* - \(.*\) ([0-9:]*).*/\1/p' | tail -1
-}
-
-getPlayerCount() {
-	rm /tmp/PikaDJ/serverPlayers.tmp >/dev/null 2>/dev/null
-	> ../"$modName"/console.log
-	(sleep 0.2; while true; do > ../"$modName"/console.log; echo "status" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
-	pidToKill=$!
-	watch -g -n 0.1 'grep "players : [0-9]*" ../'"$modName"'/console.log' >/dev/null 2>/dev/null
-	playerCount=$(grep "players : [0-9]" ../"$modName"/console.log | sed -e 's/players : \([0-9]*\).*/\1/')
-	echo $playerCount
-	kill -9 $pidToKill >/dev/null 2>/dev/null
-	wait $pidToKill >/dev/null 2>/dev/null
-	sed -n -e 's/\# \{1,\}[0-9]\{1,\} "\(.\{1,\}\)" \{1,\}STEAM_[0-9]:[0-9]:[0-9]\{1,\} \{1,\}[0-9:]\{5,\} \{1,\}[0-9]\{1,\} \{1,\}[0-9]\{1,\} [a-z].\{1,\}/\1/p' ../"$modName"/console.log | while read line; do echo "$line" >> /tmp/PikaDJ/serverPlayers.tmp; done
-}
+> /tmp/PikaDJ/queue.tmp
 
 init() {
 	echo "Initilizing..."
@@ -64,72 +37,32 @@ init() {
 		sleep 0.05
 		echo "voice_inputfromfile 0; micspamDisable" >> stdin
 	fi
-
-	./tf2MicspamQueueManager $shouldLoopback &
-	QueueManager_PID=$!
-	#echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-	echo "stop" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-	#vlc -I rc --rc-host 127.0.0.1:$vlcPort --novideo 2>/dev/null >/dev/null &
-	#VLC_PID=$!
-	#./tf2MicspamScheduledCommands 2>/dev/null >/dev/null &
-	#ScheduledCommands_PID=$!
-
-	#pactl unload-module $nullSink
 	
 	> /tmp/PikaDJ/voteSkip.tmp
-	> /tmp/PikaDJ/queue.tmp
-
-	echo "anope" > /tmp/PikaDJ/resourceIDs.tmp
+	> /tmp/PikaDJ/resourceIDs.tmp
 	
 	if [[ $shouldLoopback != "0" ]]; then
 		nullSink=$(pactl load-module module-null-sink sink_name="null_TF2Micspam" sink_properties=device.description="TF2_Micspam_Null_Sink")
-		echo "n$nullSink" >> /tmp/PikaDJ/resourceIDs.tmp
+		setResourceLine n "$nullSink"
 	fi
-	echo "k$QueueManager_PID" >> /tmp/PikaDJ/resourceIDs.tmp
-	#echo "k$VLC_PID" >> /tmp/PikaDJ/resourceIDs.tmp
-	echo "New queue manager PID: $QueueManager_PID"
 	if $autoplay; then
-		sleep 1.5
-		echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-		echo "seek 0" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+		playSong &
 	fi
 	#echo "Scheduled commands PID: $ScheduledCommands_PID"
 }
 
 cleanup() {
 	echo "Cleaning up..."
-	#echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-	#kill -9 $QueueManager_PID
-	#kill -9 $ScheduledCommands_PID
-	#kill -9 $(tail /tmp/PikaDJ/avplayID.tmp)
-	#pactl unload-module $nullSink
-	while read line; do
-		lineID=$(echo $line | sed -e 's/.//')
-		case $line in
-			a*) kill -9 $lineID; wait $lineID ;;
-			n*) pactl unload-module $lineID ;;
-			k*) kill -9 $lineID; wait $lineID ;;
-		esac
-	done < /tmp/PikaDJ/resourceIDs.tmp >/dev/null 2>/dev/null
 	echo "micspamDisable" >> stdin
+	stopSong >/dev/null 2>/dev/null
+	pactl unload-module "$(getResourceLine n)" >/dev/null 2>/dev/null
 }
 
 cleanupExit() {
 	echo "Cleaning up..."
-	echo "shutdown" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-	#kill -9 $QueueManager_PID
-	#kill -9 $ScheduledCommands_PID
-	#kill -9 $(tail /tmp/PikaDJ/avplayID.tmp)
-	#pactl unload-module $nullSink
-	while read line; do
-		lineID=$(echo $line | sed -e 's/.//')
-		case $line in
-			a*) kill -9 $lineID; wait $lineID ;;
-			n*) pactl unload-module $lineID ;;
-			k*) kill -9 $lineID; wait $lineID ;;
-		esac
-	done < /tmp/PikaDJ/resourceIDs.tmp >/dev/null 2>/dev/null
 	echo "micspamDisable" >> stdin
+	stopSong >/dev/null 2>/dev/null
+	pactl unload-module "$(getResourceLine n)" >/dev/null 2>/dev/null
 	rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 	rm -rf /tmp/PikaDJ/ >/dev/null 2>/dev/null
 }
@@ -157,14 +90,14 @@ if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 	else
 		echo "$ranCmdFull" | espeak -s 200 -v "$ttsVoice" --stdout | sox - -e signed-integer -b 16 --endian little -c 1 -r 11025 ../voice_input.wav trim 0 3 pad 0.5 0 silence 1 0.1 0.01% >/dev/null 2>/dev/null
 	fi
-	length=$(avprobe ../voice_input.wav 2>&1 | sed -n -e 's/^.*Duration: \([0-9:\.]\{11\}\),.*$/\1/p')
+	length=$(avprobe ../voice_input.wav 2>&1 | sed -n -e 's/^ *Duration: \([0-9:.]*\).*/\1/p')
 	lengthWhole=$(echo "$length" | sed -e 's/\.[0-9]\{2\}$//')
 	lengthMS=$(echo "$length" | sed -e 's/^.*\(\.[0-9]\{2\}\)$/\1/')
 	echo "micspamEnable" >> stdin
 	if [[ $shouldLoopback != "0" ]]; then
 		avplay -i ../voice_input.wav -nodisp >/dev/null 2>/dev/null &
 		avplayProcId=$!
-		sed -i -e "s/a.*/a$avplayProcId/" /tmp/PikaDJ/resourceIDs.tmp
+		setResourceLine a "$avplayProcId"
 		echo "micspamEnable" >> stdin
 		appIndex=0
 		while [[ $appIndex != "null" ]]; do
@@ -226,8 +159,7 @@ case $ranCmdLower in
 			((voteCount++))
 			if (( serverPlayers*requiredPercentage/100 < voteCount+1 )); then
 				echo "say [PikaDJ] Skipped Song!" >> stdin
-				echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-				> /tmp/PikaDJ/voteSkip.tmp
+				skipSong
 			else
 				if ((serverPlayers*requiredPercentage/100-voteCount == 1)); then voteString="vote is"; else voteString="votes are"; fi
 				echo "say \"[PikaDJ] $((serverPlayers*requiredPercentage/100-voteCount)) more $voteString required to skip this song!\"" >> stdin
@@ -341,22 +273,21 @@ else
 			;;
 		playMusic)
 			echo "Resumed playing due to bind!"
-			echo "play" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+			playSong
 			;;
 		stopMusic)
 			echo "Stopped playing due to bind!"
-			echo "stop" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+			stopSong
 			;;
 		skipMusic)
 			echo "Skipped song due to bind!"
 			echo "say [PikaDJ] Skipped Song!" >> stdin
-			echo "next" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
-			> /tmp/PikaDJ/voteSkip.tmp
+			skipSong
 			;;
 		clearMusic)
 			echo "Cleared playlist due to bind!"
 			echo "say [PikaDJ] Cleared playlist!" >> stdin
-			echo "clear" | nc -w 5 127.0.0.1 $vlcPort >/dev/null 2>/dev/null
+			clearQueue
 			rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 			;;
 		*)

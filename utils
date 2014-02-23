@@ -28,16 +28,21 @@ removeResourceLine() {
 }
 
 getSongLength() {
-	timeStamp=$(avprobe "$(head -1 /tmp/PikaDJ/queue.tmp)" 2>&1 | sed -n -e 's/^ *Duration: \([0-9:]*\).*/\1/p')
-	echo $(( $(to_seconds "$timeStamp") + 1))
+	length=$(avprobe "$(head -1 /tmp/PikaDJ/queue.tmp)" 2>&1 | sed -n -e 's/^ *Duration: \([0-9:.]*\).*/\1/p')
+	lengthWhole=$(echo "$length" | sed -e 's/\.[0-9]\{2\}$//')
+	lengthMS=$(echo "$length" | sed -e 's/^.*\(\.[0-9]\{2\}\)$/\1/')
+	echo $(to_seconds "$lengthWhole")$lengthMS
 }
 
 getSongInfo() {
-	basename "$(head -1 /tmp/PikaDJ/queue.tmp)" | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
+	if [[ $(getResourceLine a) == "nope" ]]; then
+		echo ""
+	else
+		basename "$(head -1 /tmp/PikaDJ/queue.tmp)" | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
+	fi
 }
 
 saySongInfo() {
-	#songTitle=$(echo "get_title" | nc -w 5 127.0.0.1 $vlcPort | sed -n -e 's/> \(.*\)/\1/p' | head -1 | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//')
 	songTitle="$(getSongInfo)"
 	if [[ $songTitle != "" ]]; then
 		songInfo="\"$songTitle\""
@@ -66,15 +71,60 @@ playSong() {
 		echo "Already playing!"
 		return;
 	fi
-	setResourceLine p $BASHPID
-	avplay "$(head -1 /tmp/PikaDJ/queue.tmp)" -nodisp >/dev/null 2>/dev/null &
-	playerPID=$!
+	source ./tf2ConfigFileParser
+	if [[ $shouldLoopback != "0" ]]; then
+		setResourceLine p $BASHPID
+		sox "$(head -1 /tmp/PikaDJ/queue.tmp)" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain1 rate 11025 sinc $sincRange1 bass $bassReduction1 gain -B -n $gain1 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse
+		echo "micspamEnable" >> stdin
+		> /tmp/PikaDJ/voteSkip.tmp
+		avplay "../voice_input.wav" -nodisp >/dev/null 2>/dev/null &
+		playerPID=$!
+		
+		appIndex=0
+		while [[ $appIndex != "null" ]]; do
+			while read line; do
+				case $line in
+					index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
+					application.name\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex "null_TF2Micspam.monitor"; appIndex="null"; break; fi ;;
+				esac
+			done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+		done
+		appIndex=0
+		while [[ $appIndex != "null" ]]; do
+			while read line; do
+				case $line in
+					index:\ *) appIndex=$(echo "$line" | sed -e 's/.*index: \(.*\)/\1/') ;;
+					application.process.id\ =\ *) if [[ $(echo "$line" | sed -e 's/.*application\.process\.id = \"\(.*\)\"/\1/') == "$avplayProcId" ]]; then echo "Found it at $appIndex"; pacmd move-sink-input $appIndex "null_TF2Micspam"; appIndex="null"; break; fi ;;
+				esac
+			done < <(pacmd list-sink-inputs) >/dev/null 2>/dev/null
+		done
+	else
+		sox "$(head -1 /tmp/PikaDJ/queue.tmp)" -e signed-integer -b 16 --endian little -c 1 ../voice_input.wav gain -B -n $gain0 rate 11025 sinc $sincRange0 bass $bassReduction0 gain -B -n $gain0 pad 1.5 1.5 silence 1 0.1 0.01% reverse silence 1 0.1 0.01% reverse
+		echo "micspamEnable" >> stdin
+		> /tmp/PikaDJ/voteSkip.tmp
+		sleep "$(getSongLength)" &
+		playerPID=$!
+	fi
 	setResourceLine a "$playerPID"
 	wait "$playerPID" >/dev/null 2>/dev/null
 	removeResourceLine a
+	if [[ $shouldLoopback != "0" ]]; then
+		echo "micspamEnable" >> stdin
+		appIndex=0
+		while [[ $appIndex != "null" ]]; do
+			while read sourceLine; do
+				case $sourceLine in
+					index:\ *) appIndex=$(echo "$sourceLine" | sed -e 's/.*index: \(.*\)/\1/') ;;
+					application.name\ =\ *) if [[ $(echo "$sourceLine" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex $(pacmd list-sources | grep -i \* | sed -e 's/.*index: \(.*\)/\1/'); appIndex="null"; break; fi ;;
+				esac
+			done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+		done
+	fi
+	echo "micspamDisable" >> stdin
 	advanceQueue
 	removeResourceLine p
-	if (( $(wc -l /tmp/PikaDJ/queue.tmp | cut -f1 -d' ') > 0 )); then
+	source ./tf2ConfigFileParser
+	if $autoplay && (( $(wc -l /tmp/PikaDJ/queue.tmp | cut -f1 -d' ') > 0 )); then
 		playSong &
 	fi
 }
@@ -85,6 +135,7 @@ advanceQueue() {
 }
 
 skipSong() {
+	> /tmp/PikaDJ/voteSkip.tmp
 	pidToKill="$(getResourceLine a)"
 	if [[ $pidToKill == "nope" ]]; then
 		echo "No song is playing!"
@@ -92,6 +143,19 @@ skipSong() {
 	fi
 	kill $pidToKill
 	wait $pidToKill >/dev/null 2>/dev/null
+	if [[ $shouldLoopback != "0" ]]; then
+		echo "micspamEnable" >> stdin
+		appIndex=0
+		while [[ $appIndex != "null" ]]; do
+			while read sourceLine; do
+				case $sourceLine in
+					index:\ *) appIndex=$(echo "$sourceLine" | sed -e 's/.*index: \(.*\)/\1/') ;;
+					application.name\ =\ *) if [[ $(echo "$sourceLine" | sed -e 's/.*application\.name = \"\(.*\)\"/\1/') == "Steam" ]]; then echo "Found it at $appIndex"; pacmd move-source-output $appIndex $(pacmd list-sources | grep -i \* | sed -e 's/.*index: \(.*\)/\1/'); appIndex="null"; break; fi ;;
+				esac
+			done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
+		done
+	fi
+	echo "micspamDisable" >> stdin
 	removeResourceLine a
 }
 
@@ -112,4 +176,17 @@ stopSong() {
 clearQueue() {
 	> /tmp/PikaDJ/queue.tmp
 	stopSong
+}
+
+getPlayerCount() {
+	rm /tmp/PikaDJ/serverPlayers.tmp >/dev/null 2>/dev/null
+	> ../"$modName"/console.log
+	(sleep 0.2; while true; do > ../"$modName"/console.log; echo "status" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
+	pidToKill=$!
+	watch -g -n 0.1 'grep "players : [0-9]*" ../'"$modName"'/console.log' >/dev/null 2>/dev/null
+	playerCount=$(grep "players : [0-9]" ../"$modName"/console.log | sed -e 's/players : \([0-9]*\).*/\1/')
+	echo $playerCount
+	kill -9 $pidToKill >/dev/null 2>/dev/null
+	wait $pidToKill >/dev/null 2>/dev/null
+	sed -n -e 's/\# \{1,\}[0-9]\{1,\} "\(.\{1,\}\)" \{1,\}STEAM_[0-9]:[0-9]:[0-9]\{1,\} \{1,\}[0-9:]\{5,\} \{1,\}[0-9]\{1,\} \{1,\}[0-9]\{1,\} [a-z].\{1,\}/\1/p' ../"$modName"/console.log | while read line; do echo "$line" >> /tmp/PikaDJ/serverPlayers.tmp; done
 }

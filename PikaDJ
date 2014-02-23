@@ -272,7 +272,7 @@ else
 			;;
 		playMusic)
 			echo "Resumed playing due to bind!"
-			playSong
+			playSong &
 			;;
 		stopMusic)
 			echo "Stopped playing due to bind!"

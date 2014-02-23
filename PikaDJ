@@ -77,7 +77,7 @@ init() {
 	#pactl unload-module $nullSink
 	
 	> /tmp/PikaDJ/voteSkip.tmp
-	> /tmp/PikaDJ/songQueue.tmp
+	> /tmp/PikaDJ/queue.tmp
 
 	echo "anope" > /tmp/PikaDJ/resourceIDs.tmp
 	

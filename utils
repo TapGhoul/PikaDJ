@@ -7,13 +7,33 @@ to_seconds () {
 	echo $(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
 }
 
+getResourceLine() {
+	if [[ -z $(sed -n -e "/^$1/p" /tmp/PikaDJ/resourceIDs.tmp) ]]; then
+		echo "nope"
+	else
+		sed -n -e "s/^$1//p" /tmp/PikaDJ/resourceIDs.tmp
+	fi
+}
+
+setResourceLine() {
+	if [[ -z $(sed -n -e "/^$1/p" /tmp/PikaDJ/resourceIDs.tmp) ]]; then
+		echo "$1$2" >> /tmp/PikaDJ/resourceIDs.tmp
+	else
+		sed -i -e "s/^$1.*/$1$2/" /tmp/PikaDJ/resourceIDs.tmp
+	fi
+}
+
+removeResourceLine() {
+	sed -i -e "/^$1/d" /tmp/PikaDJ/resourceIDs.tmp
+}
+
 getSongLength() {
-	timeStamp=$(avprobe "$1" 2>&1 | sed -n -e 's/^ *Duration: \([0-9:]*\).*/\1/p')
+	timeStamp=$(avprobe "$(head -1 /tmp/PikaDJ/queue.tmp)" 2>&1 | sed -n -e 's/^ *Duration: \([0-9:]*\).*/\1/p')
 	echo $(( $(to_seconds "$timeStamp") + 1))
 }
 
 getSongInfo() {
-	echo "$1" | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
+	basename "$(head -1 /tmp/PikaDJ/queue.tmp)" | sed -e 's/"/\\"/g' -e 's/[\n\r]//g' -e 's/\.[a-zA-Z0-9]\{2,4\}$//'
 }
 
 saySongInfo() {
@@ -39,4 +59,57 @@ urlencode() {
 			*) printf '%%%X' "'$c"
 		esac
 	done
+}
+
+playSong() {
+	if [[ $(getResourceLine p) != "nope" ]]; then
+		echo "Already playing!"
+		return;
+	fi
+	setResourceLine p $BASHPID
+	avplay "$(head -1 /tmp/PikaDJ/queue.tmp)" -nodisp >/dev/null 2>/dev/null &
+	playerPID=$!
+	setResourceLine a "$playerPID"
+	wait "$playerPID" >/dev/null 2>/dev/null
+	removeResourceLine a
+	advanceQueue
+	removeResourceLine p
+	if (( $(wc -l /tmp/PikaDJ/queue.tmp | cut -f1 -d' ') > 0 )); then
+		playSong &
+	fi
+}
+
+advanceQueue() {
+	tail -n +2 /tmp/PikaDJ/queue.tmp > /tmp/PikaDJ/queueBackup.tmp
+	mv /tmp/PikaDJ/queueBackup.tmp /tmp/PikaDJ/queue.tmp
+}
+
+skipSong() {
+	pidToKill="$(getResourceLine a)"
+	if [[ $pidToKill == "nope" ]]; then
+		echo "No song is playing!"
+		return
+	fi
+	kill $pidToKill
+	wait $pidToKill >/dev/null 2>/dev/null
+	removeResourceLine a
+}
+
+stopSong() {
+	pidToKill=$(getResourceLine p)
+	if [[ $pidToKill == "nope" ]]; then
+		echo "playSong isn't running!"
+	elif [[ $pidToKill == $BASHPID ]]; then
+		echo "If I kill the player, I will kill myself!"
+	else
+		kill $pidToKill
+		wait $pidToKill >/dev/null 2>/dev/null
+	fi
+	removeResourceLine p
+	skipSong
+}
+
+clearQueue() {
+	> /tmp/PikaDJ/queue.tmp
+	stopSong
 }

@@ -15,7 +15,7 @@ gain0=-7
 gain1=-8
 bassReduction0=-9
 bassReduction1=-15
-sincRange0=50-5512
+sincRange0=50-5000
 sincRange1=50-5000
 maxQueueSize=15
 

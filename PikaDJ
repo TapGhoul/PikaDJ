@@ -242,9 +242,9 @@ else
 			;;
 		sendHelp)
 			echo "Sent help due to bind!"
-			echo "say [PikaDJ] Commands: !pikayts song name - Request song from youtube, !pikayt youtubeURL - request song by URL..." >> stdin
+			echo "say [PikaDJ] Commands: ""$commandPrefix""yts song name - Request song from youtube, ""$commandPrefix""yt youtubeURL - request song by URL..." >> stdin
 			sleep 1.2
-			echo "say [PikaDJ] Commands: !pikaskip - initiate a vote to skip song, !pikainfo/!pikasong - get the currently playing song." >> stdin
+			echo "say [PikaDJ] Commands: ""$commandPrefix""skip - initiate a vote to skip song, ""$commandPrefix""info/""$commandPrefix""song - get the currently playing song." >> stdin
 			;;
 		resetMic)
 			if [[ $shouldLoopback == "0" ]]; then

@@ -13,7 +13,6 @@ Prerequisites:
 * pulseaudio
 * libav-tools
 * sox
-* netcat
 * youtube-dl (http://rg3.github.io/youtube-dl/download.html)
 	* **MUST BE INSTALLED FROM THE WEBSITE, NOT FROM A PACKAGE MANAGER**
 * Any codecs you believe may be useful for decoding FLVs and MP4s from youtube (can be any really, needs to be detected by libav-tools)

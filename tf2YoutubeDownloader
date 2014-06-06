@@ -27,7 +27,7 @@ fi
 #filename=$(youtube-dl -o "%(title)s.%(ext)s" --get-filename "$1")
 while read line; do
 	case $line in
-		{\"upload_date\":\ *)
+		{\"display_id\":\ *)
 			#echo "Metadata"
 			songDuration="$(echo "$line" | sed -e 's/.*"duration": \([0-9]*\).*/\1/')"
 			songDescription="$(echo "$line" | sed -e 's/\\.//g' -e 's/.*"description": "\([^"]*\)".*/\1/' -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')"

@@ -1,0 +1,108 @@
+alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
+alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
+alias micspamToggle micspamEnable
+sv_use_steam_voice
+voice_inputfromfile 0; micspamDisable
+voice_inputfromfile 0; micspamDisable
+say "[PikaDJ] Preparing "Tristam & Rogue - One [Dubstep]"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
+micspamEnable
+micspamDisable
+micspamEnable
+micspamDisable
+micspamDisable
+alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
+alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
+alias micspamToggle micspamEnable
+sv_use_steam_voice
+voice_inputfromfile 0; micspamDisable
+voice_inputfromfile 0; micspamDisable
+say "[PikaDJ] Preparing "Tristam & Rogue - One [Dubstep]"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
+say "[PikaDJ] Preparing "Dimitri Vegas, MOGUAI & Like Mike - Mammoth (Original Mix)"..."
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+say [PikaDJ] Commands: !snoryts song name - Request song from youtube, !snoryt youtubeURL - request song by URL...
+say [PikaDJ] Commands: !snorskip - initiate a vote to skip song, !snorinfo/!snorsong - get the currently playing song.
+micspamDisable
+alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
+alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
+alias micspamToggle micspamEnable
+sv_use_steam_voice
+voice_inputfromfile 0; micspamDisable
+voice_inputfromfile 0; micspamDisable
+micspamDisable
+alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
+alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
+alias micspamToggle micspamEnable
+sv_use_steam_voice
+voice_inputfromfile 0; micspamDisable
+voice_inputfromfile 0; micspamDisable
+micspamEnable
+micspamEnable
+micspamDisable
+micspamEnable
+micspamDisable
+alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
+alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
+alias micspamToggle micspamEnable
+sv_use_steam_voice
+voice_inputfromfile 0; micspamDisable
+voice_inputfromfile 0; micspamDisable
+micspamEnable
+micspamEnable
+micspamEnable
+micspamDisable
+micspamEnable
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+micspamDisable
+alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
+alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
+alias micspamToggle micspamEnable
+sv_use_steam_voice
+voice_inputfromfile 0; micspamDisable
+voice_inputfromfile 0; micspamDisable
+micspamEnable
+micspamEnable
+micspamEnable
+micspamDisable
+micspamEnable
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+micspamDisable
+alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
+alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
+alias micspamToggle micspamEnable
+sv_use_steam_voice
+voice_inputfromfile 0; micspamDisable
+voice_inputfromfile 0; micspamDisable
+say "[PikaDJ] Preparing "Dimitri Vegas, MOGUAI & Like Mike - Mammoth (Original Mix)"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Dimitri Vegas, MOGUAI & Like Mike - Mammoth (Original Mix)"
+micspamEnable
+micspamDisable
+say "[PikaDJ] Preparing "Tristam & Rogue - One [Dubstep]"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Dimitri Vegas, MOGUAI & Like Mike - Mammoth (Original Mix)"
+micspamEnable
+micspamDisable

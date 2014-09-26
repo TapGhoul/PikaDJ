@@ -17,8 +17,8 @@ rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 init() {
 	echo "Initilizing..."
 	source ./tf2ConfigFileParser
-	echo "alias micspamEnable \"volume 100; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable\"" >> stdin
-	echo "alias micspamDisable \"volume 100; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable\"" >> stdin
+	echo "alias micspamEnable \"volume 1.0; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable\"" >> stdin
+	echo "alias micspamDisable \"volume 1.0; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable\"" >> stdin
 	echo "alias micspamToggle micspamEnable" >> stdin
 	(sleep 0.25; while true; do > ../"$modName"/console.log; echo "sv_use_steam_voice" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
 	pidToKill=$!

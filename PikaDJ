@@ -139,7 +139,7 @@ case $ranCmdLower in
 	skip)
 		echo "[$tUser] Voted to skip Song!"
 		if [[ $(getSongInfo) == "" ]]; then
-			echo "say [PikaDJ] No song is playing!" >> stdin
+			echo "say SnorDJ No song is playing!" >> stdin
 			continue
 		else
 			voteCount=$(wc -l /tmp/PikaDJ/voteSkip.tmp | cut -f1 -d' ')
@@ -149,26 +149,26 @@ case $ranCmdLower in
 			fi
 		fi
 		if ! grep -Fxq -- "$tUser" /tmp/PikaDJ/serverPlayers.tmp; then
-			echo "say [PikaDJ] You were not on the server before the first vote, so your vote will not be counted! Sorry!" >> stdin
+			echo "say SnorDJ You were not on the server before the first vote, so your vote will not be counted! Sorry!" >> stdin
 			continue
 		elif ! grep -Fxq -- "$tUser" /tmp/PikaDJ/voteSkip.tmp; then
 			(( requiredPercentage > 100 )) && requiredPercentage=100; (( requiredPercentage < 1 )) && requiredPercentage=1
 			echo "$tUser" >> /tmp/PikaDJ/voteSkip.tmp
 			((voteCount++))
 			if (( serverPlayers*requiredPercentage/100 < voteCount+1 )); then
-				echo "say [PikaDJ] Skipped Song!" >> stdin
+				echo "say SnorDJ Skipped Song!" >> stdin
 				skipSong
 			else
 				if ((serverPlayers*requiredPercentage/100-voteCount == 1)); then voteString="vote is"; else voteString="votes are"; fi
-				echo "say \"[PikaDJ] $((serverPlayers*requiredPercentage/100-voteCount)) more $voteString required to skip this song!\"" >> stdin
+				echo "say \"SnorDJ $((serverPlayers*requiredPercentage/100-voteCount)) more $voteString required to skip this song!\"" >> stdin
 			fi
 		else
-			echo "say \"[PikaDJ] You have already voted $tUserEscaped!\"" >> stdin
+			echo "say \"SnorDJ You have already voted $tUserEscaped!\"" >> stdin
 		fi
 		;;
 	play)
 		#echo "[$tUser] Playing!"
-		#echo "say [PikaDJ] Playing!" >> stdin
+		#echo "say SnorDJ Playing!" >> stdin
 		#if [ "$shouldLoopback" != "0" ]; then
 			#pacmd set-default-sink $nullSink
 			#avplay -i
@@ -179,13 +179,13 @@ case $ranCmdLower in
 			#echo "micspamDisable" >> stdin
 		#fi
 		#echo "[$tUser] Stopped!"
-		#echo "say [PikaDJ] Stopped!" >> stdin
+		#echo "say SnorDJ Stopped!" >> stdin
 		;;
 	help)
 		#echo "[$tUser] Sent help!"
-	#echo "say [PikaDJ] Commands: !pikaplay - start playing, !pikastop - stop music..." >> stdin
+	#echo "say SnorDJ Commands: !pikaplay - start playing, !pikastop - stop music..." >> stdin
 		#sleep 1.2
-		#echo "say [PikaDJ] Commands: !pikaskip - skip song, !pikainfo/!pikasong - get the currently playing song" >> stdin
+		#echo "say SnorDJ Commands: !pikaskip - skip song, !pikainfo/!pikasong - get the currently playing song" >> stdin
 		;;
 	info|song)
 		echo "[$tUser] Sent song info!"
@@ -214,7 +214,7 @@ case $ranCmdLower in
 	yt\ *)
 		if true; then
 			echo "[$tUser] requested a youtube video!"
-			#echo "say \"[PikaDJ] Getting video info...\"" >> stdin
+			#echo "say \"SnorDJ Getting video info...\"" >> stdin
 			videoUrl=$(echo "$ranCmd" | sed -e 's/yt \([^ ].*\)/\1/I')
 			./tf2YoutubeDownloader "$videoUrl" "$tUserEscaped" "$shouldLoopback" &
 		fi
@@ -232,7 +232,7 @@ case $ranCmdLower in
 	*)
 		;;
 		#echo "[$tUser] I'm sorry $tUser, but $ranCmdFull is not a programmed command."
-		#echo "say [PikaDJ] I'm sorry $tUserEscaped, but $ranCmdFullEscaped is not a programmed command." >> stdin
+		#echo "say SnorDJ I'm sorry $tUserEscaped, but $ranCmdFullEscaped is not a programmed command." >> stdin
 esac
 else
 	case $line in
@@ -242,9 +242,9 @@ else
 			;;
 		sendHelp)
 			echo "Sent help due to bind!"
-			echo "say [PikaDJ] Commands: ""$commandPrefix""yts song name - Request song from youtube, ""$commandPrefix""yt youtubeURL - request song by URL..." >> stdin
+			echo "say SnorDJ Commands: ""$commandPrefix""yts song name - Request song from youtube, ""$commandPrefix""yt youtubeURL - request song by URL..." >> stdin
 			sleep 1.2
-			echo "say [PikaDJ] Commands: ""$commandPrefix""skip - initiate a vote to skip song, ""$commandPrefix""info/""$commandPrefix""song - get the currently playing song." >> stdin
+			echo "say SnorDJ Commands: ""$commandPrefix""skip - initiate a vote to skip song, ""$commandPrefix""info/""$commandPrefix""song - get the currently playing song." >> stdin
 			;;
 		resetMic)
 			if [[ $shouldLoopback == "0" ]]; then
@@ -279,12 +279,12 @@ else
 			;;
 		skipMusic)
 			echo "Skipped song due to bind!"
-			echo "say [PikaDJ] Skipped Song!" >> stdin
+			echo "say SnorDJ Skipped Song!" >> stdin
 			skipSong
 			;;
 		clearMusic)
 			echo "Cleared playlist due to bind!"
-			echo "say [PikaDJ] Cleared playlist!" >> stdin
+			echo "say SnorDJ Cleared playlist!" >> stdin
 			clearQueue
 			rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 			;;

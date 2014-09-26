@@ -3,7 +3,7 @@ while true
 do
 	#sleep 900
 	sleep 600
-	echo "say [PikaDJ] Commands: !pikahelp - get this help, !pikaplay - start playing, !pikastop - stop music..." >> stdin
+	echo "say [SnorDJ] Commands: !pikahelp - get this help, !pikaplay - start playing, !pikastop - stop music..." >> stdin
 	sleep 1.2
-	echo "say [PikaDJ] Commands: !pikaskip - skip song, !pikainfo/!pikasong - get the currently playing song" >> stdin
+	echo "say [SnorDJ] Commands: !pikaskip - skip song, !pikainfo/!pikasong - get the currently playing song" >> stdin
 done

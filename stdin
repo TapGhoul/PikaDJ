@@ -4,13 +4,6 @@ alias micspamToggle micspamEnable
 sv_use_steam_voice
 voice_inputfromfile 0; micspamDisable
 voice_inputfromfile 0; micspamDisable
-say "[PikaDJ] Preparing "Tristam & Rogue - One [Dubstep]"..."
-micspamEnable
-say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
-micspamEnable
-micspamDisable
-micspamEnable
-micspamDisable
 micspamDisable
 alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
 alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
@@ -19,10 +12,6 @@ sv_use_steam_voice
 voice_inputfromfile 0; micspamDisable
 voice_inputfromfile 0; micspamDisable
 say "[PikaDJ] Preparing "Tristam & Rogue - One [Dubstep]"..."
-micspamEnable
-say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
-micspamEnable
-micspamDisable
 micspamEnable
 say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
 micspamEnable
@@ -35,8 +24,10 @@ micspamEnable
 micspamEnable
 micspamDisable
 micspamDisable
-say [PikaDJ] Commands: !snoryts song name - Request song from youtube, !snoryt youtubeURL - request song by URL...
-say [PikaDJ] Commands: !snorskip - initiate a vote to skip song, !snorinfo/!snorsong - get the currently playing song.
+micspamEnable
+say [PikaDJ] Now Playing: "Dimitri Vegas, MOGUAI & Like Mike - Mammoth (Original Mix)"
+micspamEnable
+micspamDisable
 micspamDisable
 alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
 alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
@@ -44,65 +35,322 @@ alias micspamToggle micspamEnable
 sv_use_steam_voice
 voice_inputfromfile 0; micspamDisable
 voice_inputfromfile 0; micspamDisable
-micspamDisable
-alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
-alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
-alias micspamToggle micspamEnable
-sv_use_steam_voice
-voice_inputfromfile 0; micspamDisable
-voice_inputfromfile 0; micspamDisable
+say "[PikaDJ] Preparing "Martin Garrix - Animals (Official Video)"..."
 micspamEnable
+say [PikaDJ] Now Playing: "Martin Garrix - Animals (Official Video)"
 micspamEnable
 micspamDisable
 micspamEnable
-micspamDisable
-alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
-alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
-alias micspamToggle micspamEnable
-sv_use_steam_voice
-voice_inputfromfile 0; micspamDisable
-voice_inputfromfile 0; micspamDisable
-micspamEnable
-micspamEnable
+say [PikaDJ] Now Playing: "Martin Garrix - Animals (Official Video)"
 micspamEnable
 micspamDisable
 micspamEnable
-micspamEnable
-micspamEnable
 micspamDisable
-micspamDisable
-micspamEnable
-micspamDisable
-alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
-alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
-alias micspamToggle micspamEnable
-sv_use_steam_voice
-voice_inputfromfile 0; micspamDisable
-voice_inputfromfile 0; micspamDisable
-micspamEnable
-micspamEnable
-micspamEnable
-micspamDisable
-micspamEnable
-micspamEnable
-micspamEnable
-micspamDisable
-micspamDisable
-micspamEnable
-micspamDisable
-alias micspamEnable "volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable"
-alias micspamDisable "volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable"
-alias micspamToggle micspamEnable
-sv_use_steam_voice
-voice_inputfromfile 0; micspamDisable
-voice_inputfromfile 0; micspamDisable
 say "[PikaDJ] Preparing "Dimitri Vegas, MOGUAI & Like Mike - Mammoth (Original Mix)"..."
 micspamEnable
-say [PikaDJ] Now Playing: "Dimitri Vegas, MOGUAI & Like Mike - Mammoth (Original Mix)"
+say [PikaDJ] Now Playing: "Martin Garrix - Animals (Official Video)"
+say "[PikaDJ] Preparing "Dimitri Vegas, Moguai & Like Mike feat. Julian Perretta - Body Talk (Mammoth) OFFICIAL VIDEO"..."
+say [PikaDJ] Skipped Song!
+micspamEnable
 micspamEnable
 micspamDisable
-say "[PikaDJ] Preparing "Tristam & Rogue - One [Dubstep]"..."
+micspamDisable
 micspamEnable
 say [PikaDJ] Now Playing: "Dimitri Vegas, MOGUAI & Like Mike - Mammoth (Original Mix)"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Dimitri Vegas, Moguai & Like Mike feat. Julian Perretta - Body Talk (Mammoth) OFFICIAL VIDEO"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Dimitri Vegas, Moguai & Like Mike feat. Julian Perretta - Body Talk (Mammoth) OFFICIAL VIDEO"
+say "[PikaDJ] Preparing "Jackal - Shakedown (Original Mix)"..."
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Jackal - Shakedown (Original Mix)"
+micspamEnable
+micspamDisable
+say "[PikaDJ] Dimitri Vegas, Moguai & Like Mike feat. Julian Perretta - Body Talk (Mammoth) OFFICIAL VIDEO is already in the playlist! Sorry!"
+micspamEnable
+say [PikaDJ] Now Playing: "Jackal - Shakedown (Original Mix)"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+micspamDisable
+say "[PikaDJ] Preparing "Martin Garrix - Animals (Official Video)"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Martin Garrix - Animals (Official Video)"
+say "[PikaDJ] Preparing "Ariana Grande - Break Free ft. Zedd"..."
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Ariana Grande - Break Free ft. Zedd"
+say "[PikaDJ] Preparing "Nicky Romero vs Krewella - Legacy (Vicetone Remix)"..."
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Nicky Romero vs Krewella - Legacy (Vicetone Remix)"
+say "[PikaDJ] Preparing "Tristam & Rogue - One [Dubstep]"..."
+say "[PikaDJ] Preparing "Cash Cash - Take Me Home ft Bebe Rexha [Official Video]"..."
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Nicky Romero vs Krewella - Legacy (Vicetone Remix)"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Tristam & Rogue - One [Dubstep]"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Cash Cash - Take Me Home ft Bebe Rexha [Official Video]"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Cash Cash - Take Me Home ft Bebe Rexha [Official Video]"
+micspamEnable
+micspamDisable
+micspamEnable
+micspamDisable
+say "[PikaDJ] Preparing "Eminem - The Monster (Explicit) ft. Rihanna"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Cash Cash - Take Me Home ft Bebe Rexha [Official Video]"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Eminem - The Monster (Explicit) ft. Rihanna"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+say "[PikaDJ] Preparing "D12 - My Band [hd]"..."
+micspamEnable
+say [PikaDJ] Now Playing: "D12 - My Band [hd]"
+micspamEnable
+micspamDisable
+say "[PikaDJ] Preparing "Mat Zo - Lucid Dreams (Original Mix)"..."
+micspamEnable
+say [PikaDJ] Now Playing: "D12 - My Band [hd]"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "D12 - My Band [hd]"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Mat Zo - Lucid Dreams (Original Mix)"
+say "[PikaDJ] Preparing "Avicii, Aloe Blacc - Wake Me Up (Official Video)"..."
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Avicii, Aloe Blacc - Wake Me Up (Official Video)"
+say "[PikaDJ] Preparing "Michael Mind Project - Show Me Love (Official Festival Mix) (Official Video HD)"..."
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Michael Mind Project - Show Me Love (Official Festival Mix) (Official Video HD)"
+say "[PikaDJ] Preparing "Daft Punk - End of Line HQ"..."
+say "[PikaDJ] Preparing "Dimitri Vegas, Moguai & Like Mike feat. Julian Perretta - Body Talk (Mammoth) OFFICIAL VIDEO"..."
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Daft Punk - End of Line HQ"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Dimitri Vegas, Moguai & Like Mike feat. Julian Perretta - Body Talk (Mammoth) OFFICIAL VIDEO"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+say "[PikaDJ] Preparing "Martin Garrix - Animals (Official Video)"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Martin Garrix - Animals (Official Video)"
+micspamEnable
+micspamDisable
+micspamEnable
+micspamDisable
+micspamEnable
+micspamDisable
+say "[PikaDJ] Preparing "Kid TROLLED in Minecraft (Herobrine Troll)"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Martin Garrix - Animals (Official Video)"
+micspamEnable
+micspamDisable
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Martin Garrix - Animals (Official Video)"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Kid TROLLED in Minecraft (Herobrine Troll)"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+say "[PikaDJ] Preparing "Trololo Sing Along!"..."
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Trololo Sing Along!"
+micspamEnable
+micspamDisable
+micspamEnable
+micspamDisable
+say "[PikaDJ] Sorry Player, but there was an error getting the video info! Try again later!"
+say "[PikaDJ] Preparing "The DarkRP Admin Song"..."
+micspamEnable
+say [PikaDJ] Now Playing: "Trololo Sing Along!"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "The DarkRP Admin Song"
+micspamEnable
+micspamDisable
+micspamEnable
+micspamDisable
+say [PikaDJ] Cleared playlist!
+say [PikaDJ] Cleared playlist!
+say [PikaDJ] Cleared playlist!
+say [PikaDJ] Skipped Song!
+say [PikaDJ] Skipped Song!
+say [PikaDJ] Now Playing: Not currently playing!
+say "[PikaDJ] Preparing "Ummet Ozcan - Raise Your Hands (Official Video)"..."
+say [PikaDJ] Now Playing: Not currently playing!
+micspamEnable
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say "[PikaDJ] Preparing "R3HAB & NERVO - Ready For The Weekend ft. Ayah Marar (Official Music Video) [OUT NOW]"..."
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Now Playing: "Ummet Ozcan - Raise Your Hands (Official Video)"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "R3HAB & NERVO - Ready For The Weekend ft. Ayah Marar (Official Music Video) [OUT NOW]"
+say [PikaDJ] Now Playing: "R3HAB & NERVO - Ready For The Weekend ft. Ayah Marar (Official Music Video) [OUT NOW]"
+say [PikaDJ] Now Playing: "R3HAB & NERVO - Ready For The Weekend ft. Ayah Marar (Official Music Video) [OUT NOW]"
+say "[PikaDJ] Preparing "Jason Derulo 'Trumpets' (Official HD Music Video)"..."
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Jason Derulo 'Trumpets' (Official HD Music Video)"
+say [PikaDJ] Now Playing: "Jason Derulo 'Trumpets' (Official HD Music Video)"
+say "[PikaDJ] Preparing "Timmy Trumpet & Savage - Freaks"..."
+say "[PikaDJ] Timmy Trumpet & Savage - Freaks is already in the playlist! Sorry!"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Timmy Trumpet & Savage - Freaks"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Timmy Trumpet & Savage - Freaks"
+say "[PikaDJ] Preparing "Ariana Grande - Break Free ft. Zedd"..."
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "Ariana Grande - Break Free ft. Zedd"
+micspamEnable
+micspamDisable
+say "[PikaDJ] Preparing "IceJJFish - On The Floor (Official Music Video)"..."
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+say [PikaDJ] Now Playing: Not currently playing!
+micspamEnable
+say [PikaDJ] Now Playing: "Ariana Grande - Break Free ft. Zedd"
+say [PikaDJ] Skipped Song!
+micspamEnable
+micspamEnable
+micspamDisable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "IceJJFish - On The Floor (Official Music Video)"
+micspamEnable
+micspamDisable
+micspamEnable
+say [PikaDJ] Now Playing: "IceJJFish - On The Floor (Official Music Video)"
+micspamEnable
+micspamDisable
 micspamEnable
 micspamDisable

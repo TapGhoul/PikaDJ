@@ -72,12 +72,12 @@ init
 #ttsVoice="default"
 
 tail -f ../"$modName"/console.log -n1 | while read line ; do
-tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\) :  .*/\1/')
+tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\): .*/\1/')
 tUserEscaped=$(echo "$tUser" | sed -e 's/\"/\\\"/g')
 #ranCmd=$(echo "$line" | sed -e 's/.* :  !pika\(.*\)/\1/' -e 's/\"/\\\"/g')
-ranCmd=$(echo "$line" | sed -e 's/.* :  '"$commandPrefix"'\(.*\)/\1/I')
+ranCmd=$(echo "$line" | sed -e 's/.*: '"$commandPrefix"'\(.*\)/\1/I')
 ranCmdEscaped=$(echo "$ranCmd" | sed -e 's/\"/\\\"/g')
-ranCmdFull=$(echo "$line" | sed -e 's/.* :  \(.*\)/\1/')
+ranCmdFull=$(echo "$line" | sed -e 's/.*: \(.*\)/\1/')
 ranCmdLower=$(echo "$ranCmd" | tr '[:upper:]' '[:lower:]')
 if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 	ranCmdFull=$(echo "$ranCmdFull" | tr -cd '[:print:]')

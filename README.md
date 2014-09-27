@@ -2,6 +2,7 @@ PikaDJ
 ======
 
 Hey! This software, PikaDJ, was made by me, {FM} [Linux] PIKACHU! (http://steamcommunity.com/profiles/76561198034518769)
+Snorflake helped port it to GMOD, which is what this is now.
 It is extremely easy to setup and use!
 
 Prerequisites:
@@ -30,14 +31,14 @@ Most error messages are silenced in the software, so it may be a bit difficult t
 Installation:
 -------------
 
-1. Clone the repository to `~/.local/share/Steam/SteamApps/common/Team Fortress 2/` with
+1. Clone the repository to `~/.local/share/Steam/SteamApps/common/GarrysMod/` with
 
 	```bash
 	$ cd "~/.local/share/Steam/SteamApps/common/Team Fortress 2/"
 	$ git clone https://github.com/Silvea12/PikaDJ.git
 	```
 
-	* You should have a file structure something like `~/.local/share/Steam/SteamApps/common/Team Fortress 2/PikaDJ/config.cfg` (this is just one file, there are more within the PikaDJ directory).
+	* You should have a file structure something like `~/.local/share/Steam/SteamApps/common/GarrysMod/PikaDJ/config.cfg` (this is just one file, there are more within the PikaDJ directory).
 	* All file permissions should be correct by default. If the main file won't execute, run this in terminal:
 
 	```bash
@@ -45,7 +46,7 @@ Installation:
 	$ chmod a+x PikaDJ tf2*
 	```
 
-2. Add these lines to autoexec.cfg in `~/.local/share/Steam/SteamApps/common/Team Fortress 2/tf/cfg/`:
+2. Add these lines to autoexec.cfg in `~/.local/share/Steam/SteamApps/common/GarrysMod/tf/cfg/`:
 
 	```
 	// These keybinds are easily modifiable, so feel free to change them to suit your needs. //
@@ -61,7 +62,7 @@ Installation:
 	// End keybinds for PikaDJ //
 	```
 
-3. Set your TF2 launch options to `> tf/console.log; > PikaDJ/stdin; %command% -condebug < PikaDJ/stdin`
+3. Set your TF2 launch options to `> garrysmod/console.log; > PikaDJ/stdin; %command% -condebug < PikaDJ/stdin`
 	* Feel free to add other commands between `%command%` and `< PikaDJ/stdin`. `-condebug` is *required* to be in between those 2 segments.
 4. Profit!
 
@@ -70,11 +71,11 @@ Usage:
 
 #### Running:
 
-1. Start TF2
+1. Start GMOD
 2. Run this in terminal:
 
 	```bash
-	$ cd ~/.local/share/Steam/SteamApps/common/Team Fortress 2/PikaDJ/
+	$ cd ~/.local/share/Steam/SteamApps/common/GarrysMod/PikaDJ/
 	$ ./PikaDJ
 	```
 

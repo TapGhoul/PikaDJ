@@ -3,26 +3,26 @@ currDir=$PWD
 filename=""
 songDuration=""
 shouldLoopback="$3"
-#if [[ $2 == "[DG] The Alchemist" ]]; then echo "say \"[SnorDJ] Sorry $2, but you have been blocked from requesting songs!\"" >> stdin; exit 0; fi
-#if [[ $2 == "Hun | My Sentry" ]]; then echo "say \"[SnorDJ] Sorry Hun | My Sentry, but you have been blocked from requesting songs!\"" >> stdin; exit 0; fi
-#echo "say \"[SnorDJ] Sorry $2, but I am currently refusing requests, as I have to leave soon!\"" >> stdin
+#if [[ $2 == "[DG] The Alchemist" ]]; then echo "say \"[PikaDJ] Sorry $2, but you have been blocked from requesting songs!\"" >> stdin; exit 0; fi
+#if [[ $2 == "Hun | My Sentry" ]]; then echo "say \"[PikaDJ] Sorry Hun | My Sentry, but you have been blocked from requesting songs!\"" >> stdin; exit 0; fi
+#echo "say \"[PikaDJ] Sorry $2, but I am currently refusing requests, as I have to leave soon!\"" >> stdin
 #exit 0
 source ./utils
 source ./tf2ConfigFileParser
 if $ttsEnabled; then exit 0; fi
 if ((maxQueueSize == 0)); then
-	echo "say \"[SnorDJ] Sorry $2, but I am currently refusing requests!\"" >> stdin
+	echo "say \"[PikaDJ] Sorry $2, but I am currently refusing requests!\"" >> stdin
 	exit 1
 elif ((maxQueueSize > 0)); then
-	lineCount=$(wc -l /tmp/SnorDJ/queue.tmp | cut -f1 -d' ')
+	lineCount=$(wc -l /tmp/PikaDJ/queue.tmp | cut -f1 -d' ')
 	if ((lineCount >= maxQueueSize)); then
-		echo "say \"[SnorDJ] Sorry $2, but I am currently refusing requests until the queue clears up. Try again later!\"" >> stdin
+		echo "say \"[PikaDJ] Sorry $2, but I am currently refusing requests until the queue clears up. Try again later!\"" >> stdin
 		exit 1
 	fi
 fi
-#echo "say \"[SnorDJ] I am currently refusing requests, because I have to reload the script after this queue. Sorry!\"" >> stdin
-#echo "say \"[SnorDJ] I am currently refusing requests, because I have to enable autoplay after this queue (so I can go AFK). Sorry!\"" >> stdin
-#echo "say \"[SnorDJ] I am currently refusing requests. Sorry!\"" >> stdin
+#echo "say \"[PikaDJ] I am currently refusing requests, because I have to reload the script after this queue. Sorry!\"" >> stdin
+#echo "say \"[PikaDJ] I am currently refusing requests, because I have to enable autoplay after this queue (so I can go AFK). Sorry!\"" >> stdin
+#echo "say \"[PikaDJ] I am currently refusing requests. Sorry!\"" >> stdin
 #exit 0
 #filename=$(youtube-dl -o "%(title)s.%(ext)s" --get-filename "$1")
 while read line; do
@@ -45,7 +45,7 @@ if [[ $filename != "" ]]; then
 	for word in "${bannedWords[@]}"; do
 		if [[ $songDescription =~ $word ]] || [[ $uploaderName =~ $word ]] || [[ $uploaderID =~ $word ]] || [[ $(echo "$filename" | sed -e 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]') =~ $word ]]; then
 			echo "$title is blocked by the filter $word! I can't play it!"
-			echo "say \"[SnorDJ] Sorry, but $title is blocked by my filter ($word), so I can't play it!\"" >> stdin
+			echo "say \"[PikaDJ] Sorry, but $title is blocked by my filter ($word), so I can't play it!\"" >> stdin
 			exit 1
 		fi
 	done
@@ -55,18 +55,18 @@ if [[ $filename != "" ]]; then
 	#echo "Song duration: $songDurationPrintable"
 	if (( songDuration > maxSongLength )); then
 		echo "$title is more than $maxSongLengthPrintable! It is $songDurationPrintable"
-		echo "say \"[SnorDJ] $title is too long! Sorry!\"" >> stdin
+		echo "say \"[PikaDJ] $title is too long! Sorry!\"" >> stdin
 		exit 1
 	elif (( songDuration < minSongLength )); then
 		echo "$title is less than $minSongLengthPrintable! It is $songDurationPrintable"
-		echo "say \"[SnorDJ] $title is too short! Sorry!\"" >> stdin
+		echo "say \"[PikaDJ] $title is too short! Sorry!\"" >> stdin
 		exit 1
 	else
 		echo "$title is an acceptable length! It is $songDurationPrintable"
 	fi
 	cd ~/Music/youtubeRequests/
 	if [[ ! -f "fixedName/$filename" ]]; then
-		echo "say \"[SnorDJ] Preparing \"$title\"...\"" >> "$currDir/stdin"
+		echo "say \"[PikaDJ] Preparing \"$title\"...\"" >> "$currDir/stdin"
 		if [[ ! -f "$filename" ]]; then
 			youtube-dl -q -f "139/140/17/36/5" -x --audio-format "wav" --no-playlist --no-check-certificate -o "%(title)s.%(ext)s" "$1"
 			downloadStatus=$?
@@ -76,28 +76,28 @@ if [[ $filename != "" ]]; then
 		if [[ $downloadStatus == 0 ]]; then
 			cp -f "$filename" "fixedName/$filename"
 			cd fixedName
-			echo "$PWD/$filename" >> /tmp/SnorDJ/queue.tmp
+			echo "$PWD/$filename" >> /tmp/PikaDJ/queue.tmp
 			cd "$currDir"
 			source ./tf2ConfigFileParser
 			if $autoplay; then
 				playSong &
 			fi
-			#echo "say \"[SnorDJ] $title has downloaded and is ready to play!\"" >> stdin
+			#echo "say \"[PikaDJ] $title has downloaded and is ready to play!\"" >> stdin
 			echo "$title is now ready to play!"
 		else
 			cd "$currDir"
 			echo "Youtube download failed!"
-			echo "say \"[SnorDJ] There was an error downloading $title! Try again later!\"" >> stdin
+			echo "say \"[PikaDJ] There was an error downloading $title! Try again later!\"" >> stdin
 			exit 1
 		fi
 	else
 		cd "$currDir"
 		echo "$title already exists in the playlist!"
-		echo "say \"[SnorDJ] $title is already in the playlist! Sorry!\"" >> stdin
+		echo "say \"[PikaDJ] $title is already in the playlist! Sorry!\"" >> stdin
 		exit 1
 	fi
 else
-	echo "say \"[SnorDJ] Sorry $2, but there was an error getting the video info! Try again later!\"" >> stdin
+	echo "say \"[PikaDJ] Sorry $2, but there was an error getting the video info! Try again later!\"" >> stdin
 	exit 1
 fi
 exit 0

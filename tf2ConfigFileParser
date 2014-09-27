@@ -1,7 +1,7 @@
 #!/bin/bash
 
-commandPrefix=!pika
-modName=tf
+commandPrefix=!snor
+modName=garrysmod
 autoplay=true
 minSongLength=15
 maxSongLength=$((15*60))

@@ -17,8 +17,8 @@ rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 init() {
 	echo "Initilizing..."
 	source ./tf2ConfigFileParser
-	echo "alias micspamEnable \"volume 1.0; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable\"" >> stdin
-	echo "alias micspamDisable \"volume 1.0; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable\"" >> stdin
+	echo "alias micspamEnable \"volume 0.30; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable\"" >> stdin
+	echo "alias micspamDisable \"volume 0.30; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable\"" >> stdin
 	echo "alias micspamToggle micspamEnable" >> stdin
 	(sleep 0.25; while true; do > ../"$modName"/console.log; echo "sv_use_steam_voice" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
 	pidToKill=$!
@@ -72,12 +72,12 @@ init
 #ttsVoice="default"
 
 tail -f ../"$modName"/console.log -n1 | while read line ; do
-tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\) :  .*/\1/')
+tUser=$(echo "$line" | sed -e 's/^\*SPEC\* //' -e 's/^\*DEAD\* //' -e 's/^(TEAM) //' -e 's/^\*DEAD\*(TEAM) //' -e 's/\(.*\): .*/\1/')
 tUserEscaped=$(echo "$tUser" | sed -e 's/\"/\\\"/g')
 #ranCmd=$(echo "$line" | sed -e 's/.* :  !pika\(.*\)/\1/' -e 's/\"/\\\"/g')
-ranCmd=$(echo "$line" | sed -e 's/.* :  '"$commandPrefix"'\(.*\)/\1/I')
+ranCmd=$(echo "$line" | sed -e 's/.*: '"$commandPrefix"'\(.*\)/\1/I')
 ranCmdEscaped=$(echo "$ranCmd" | sed -e 's/\"/\\\"/g')
-ranCmdFull=$(echo "$line" | sed -e 's/.* :  \(.*\)/\1/')
+ranCmdFull=$(echo "$line" | sed -e 's/.*: \(.*\)/\1/')
 ranCmdLower=$(echo "$ranCmd" | tr '[:upper:]' '[:lower:]')
 if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 	ranCmdFull=$(echo "$ranCmdFull" | tr -cd '[:print:]')

@@ -219,5 +219,5 @@ getPlayerCount() {
 	echo $playerCount
 	kill -9 $pidToKill >/dev/null 2>/dev/null
 	wait $pidToKill >/dev/null 2>/dev/null
-	sed -n -e 's/\# \{1,\}[0-9]\{1,\} "\(.\{1,\}\)" \{1,\}STEAM_[0-9]:[0-9]:[0-9]\{1,\} \{1,\}[0-9:]\{5,\} \{1,\}[0-9]\{1,\} \{1,\}[0-9]\{1,\} [a-z].\{1,\}/\1/p' ../"$modName"/console.log | while read line; do echo "$line" >> /tmp/PikaDJ/serverPlayers.tmp; done
+	sed -n -e 's/\# \{1,\}[0-9]\{1,\} "\(.\{1,\}\)" \{1,\}\[U:[0-9]:[0-9]\{1,\}\] \{1,\}[0-9:]\{5,\} \{1,\}[0-9]\{1,\} \{1,\}[0-9]\{1,\} [a-z].\{1,\}/\1/p' ../"$modName"/console.log | while read line; do echo "$line" >> /tmp/PikaDJ/serverPlayers.tmp; done
 }

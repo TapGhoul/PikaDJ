@@ -17,25 +17,27 @@ rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 init() {
 	echo "Initilizing..."
 	source ./tf2ConfigFileParser
-	echo "alias micspamEnable \"volume 100; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable\"" >> stdin
-	echo "alias micspamDisable \"volume 100; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable\"" >> stdin
-	echo "alias micspamToggle micspamEnable" >> stdin
-	(sleep 0.25; while true; do > ../"$modName"/console.log; echo "sv_use_steam_voice" >> stdin; sleep 1; done) & >/dev/null 2>/dev/null
+
+	echo "sv_use_steam_voice" > ../"$modName"/cfg/stdin.cfg
+
+	> ../"$modname"/console.log
+
+	(sleep 0.2; while true; do xdotool type --window "$(xdotool search --class hl2_linux)" =; sleep 0.2; done) & >/dev/null 2>/dev/null
 	pidToKill=$!
+
 	while read line; do if [[ $line =~ ^\"sv_use_steam_voice\"\ =\ \".\" ]]; then shouldLoopback=$(echo "$line" | sed -e 's/^"sv_use_steam_voice" = "\(.\)".*/\1/'); break; fi; done < <(tail -f -n0 ../"$modName"/console.log)
-	kill -9 $pidToKill >/dev/null 2>/dev/null
+
+	kill $pidToKill >/dev/null 2>/dev/null
 	wait $pidToKill >/dev/null 2>/dev/null
+
 	echo "shouldLoopback: $shouldLoopback"
 
 	if [[ $shouldLoopback == "0" ]]; then
-		echo "voice_inputfromfile 1; micspamDisable" >> stdin
-		sleep 0.05
-		echo "voice_inputfromfile 1; micspamDisable" >> stdin
+		echo "voice_inputfromfile 1; micspamDisable" > ../"$modName"/cfg/stdin.cfg
 	else
-		echo "voice_inputfromfile 0; micspamDisable" >> stdin
-		sleep 0.05
-		echo "voice_inputfromfile 0; micspamDisable" >> stdin
+		echo "voice_inputfromfile 0; micspamDisable" > ../"$modName"/cfg/stdin.cfg
 	fi
+	xdotool type --delay 125 --window "$(xdotool search --class hl2_linux)" = =
 	
 	> /tmp/PikaDJ/voteSkip.tmp
 	> /tmp/PikaDJ/resourceIDs.tmp
@@ -52,14 +54,16 @@ init() {
 
 cleanup() {
 	echo "Cleaning up..."
-	echo "micspamDisable" >> stdin
+	echo "micspamDisable" > ../"$modName"/cfg/stdin.cfg
+	xdotool type --window "$(xdotool search --class hl2_linux)" =
 	stopSong >/dev/null 2>/dev/null
 	pactl unload-module "$(getResourceLine n)" >/dev/null 2>/dev/null
 }
 
 cleanupExit() {
 	echo "Cleaning up..."
-	echo "micspamDisable" >> stdin
+	echo "micspamDisable" > ../"$modName"/cfg/stdin.cfg
+	xdotool type --window "$(xdotool search --class hl2_linux)" =
 	stopSong >/dev/null 2>/dev/null
 	pactl unload-module "$(getResourceLine n)" >/dev/null 2>/dev/null
 	rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
@@ -92,12 +96,13 @@ if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 	length=$(avprobe ../voice_input.wav 2>&1 | sed -n -e 's/^ *Duration: \([0-9:.]*\).*/\1/p')
 	lengthWhole=$(echo "$length" | sed -e 's/\.[0-9]\{2\}$//')
 	lengthMS=$(echo "$length" | sed -e 's/^.*\(\.[0-9]\{2\}\)$/\1/')
-	echo "micspamEnable" >> stdin
+	echo "micspamEnable" > ../"$modName"/cfg/stdin.cfg
+	xdotool type --window "$(xdotool search --class hl2_linux)" =
 	if [[ $shouldLoopback != "0" ]]; then
 		avplay -i ../voice_input.wav -nodisp >/dev/null 2>/dev/null &
 		avplayProcId=$!
 		setResourceLine a "$avplayProcId"
-		echo "micspamEnable" >> stdin
+		xdotool type --window "$(xdotool search --class hl2_linux)" =
 		appIndex=0
 		while [[ $appIndex != "null" ]]; do
 			while read line; do
@@ -121,7 +126,8 @@ if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 	kill -9 $avplayProcId >/dev/null 2>/dev/null
 	wait $avplayProcId >/dev/null 2>/dev/null
 	if [[ $shouldLoopback != "0" ]]; then
-		echo "micspamEnable" >> stdin
+		echo "micspamEnable" > ../"$modName"/cfg/stdin.cfg
+		xdotool type --window "$(xdotool search --class hl2_linux)" =
 		appIndex=0
 		while [[ $appIndex != "null" ]]; do
 			while read sourceLine; do
@@ -132,14 +138,16 @@ if $ttsEnabled && [[ "$ranCmdFull" != "$line" ]]; then
 			done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
 		done
 	fi
-	echo "micspamDisable" >> stdin
+	echo "micspamDisable" > ../"$modName"/cfg/stdin.cfg
+	xdotool type --window "$(xdotool search --class hl2_linux)" =
 elif [[ $ranCmd != $line ]]
 then
 case $ranCmdLower in
 	skip)
 		echo "[$tUser] Voted to skip Song!"
 		if [[ $(getSongInfo) == "" ]]; then
-			echo "say [PikaDJ] No song is playing!" >> stdin
+			echo "say [PikaDJ] No song is playing!" > ../"$modName"/cfg/stdin.cfg
+			xdotool type --window "$(xdotool search --class hl2_linux)" =
 			continue
 		else
 			voteCount=$(wc -l /tmp/PikaDJ/voteSkip.tmp | cut -f1 -d' ')
@@ -149,26 +157,30 @@ case $ranCmdLower in
 			fi
 		fi
 		if ! grep -Fxq -- "$tUser" /tmp/PikaDJ/serverPlayers.tmp; then
-			echo "say [PikaDJ] You were not on the server before the first vote, so your vote will not be counted! Sorry!" >> stdin
+			echo "say [PikaDJ] You were not on the server before the first vote, so your vote will not be counted! Sorry!" > ../"$modName"/cfg/stdin.cfg
+			xdotool type --window "$(xdotool search --class hl2_linux)" =
 			continue
 		elif ! grep -Fxq -- "$tUser" /tmp/PikaDJ/voteSkip.tmp; then
 			(( requiredPercentage > 100 )) && requiredPercentage=100; (( requiredPercentage < 1 )) && requiredPercentage=1
 			echo "$tUser" >> /tmp/PikaDJ/voteSkip.tmp
 			((voteCount++))
 			if (( serverPlayers*requiredPercentage/100 < voteCount+1 )); then
-				echo "say [PikaDJ] Skipped Song!" >> stdin
+				echo "say [PikaDJ] Skipped Song!" > ../"$modName"/cfg/stdin.cfg
+				xdotool type --window "$(xdotool search --class hl2_linux)" =
 				skipSong
 			else
 				if ((serverPlayers*requiredPercentage/100-voteCount == 1)); then voteString="vote is"; else voteString="votes are"; fi
-				echo "say \"[PikaDJ] $((serverPlayers*requiredPercentage/100-voteCount)) more $voteString required to skip this song!\"" >> stdin
+				echo "say \"[PikaDJ] $((serverPlayers*requiredPercentage/100-voteCount)) more $voteString required to skip this song!\"" > ../"$modName"/cfg/stdin.cfg
+				xdotool type --window "$(xdotool search --class hl2_linux)" =
 			fi
 		else
-			echo "say \"[PikaDJ] You have already voted $tUserEscaped!\"" >> stdin
+			echo "say \"[PikaDJ] You have already voted $tUserEscaped!\"" > ../"$modName"/cfg/stdin.cfg
+			xdotool type --window "$(xdotool search --class hl2_linux)" =
 		fi
 		;;
 	play)
 		#echo "[$tUser] Playing!"
-		#echo "say [PikaDJ] Playing!" >> stdin
+		#echo "say [PikaDJ] Playing!" >> ../"$modName"/cfg/stdin.cfg
 		#if [ "$shouldLoopback" != "0" ]; then
 			#pacmd set-default-sink $nullSink
 			#avplay -i
@@ -176,16 +188,16 @@ case $ranCmdLower in
 		;;
 	stop)
 		#if [ "$shouldLoopback" == "0" ]; then
-			#echo "micspamDisable" >> stdin
+			#echo "micspamDisable" >> ../"$modName"/cfg/stdin.cfg
 		#fi
 		#echo "[$tUser] Stopped!"
-		#echo "say [PikaDJ] Stopped!" >> stdin
+		#echo "say [PikaDJ] Stopped!" >> ../"$modName"/cfg/stdin.cfg
 		;;
 	help)
 		#echo "[$tUser] Sent help!"
-	#echo "say [PikaDJ] Commands: !pikaplay - start playing, !pikastop - stop music..." >> stdin
+	#echo "say [PikaDJ] Commands: !pikaplay - start playing, !pikastop - stop music..." >> ../"$modName"/cfg/stdin.cfg
 		#sleep 1.2
-		#echo "say [PikaDJ] Commands: !pikaskip - skip song, !pikainfo/!pikasong - get the currently playing song" >> stdin
+		#echo "say [PikaDJ] Commands: !pikaskip - skip song, !pikainfo/!pikasong - get the currently playing song" >> ../"$modName"/cfg/stdin.cfg
 		;;
 	info|song)
 		echo "[$tUser] Sent song info!"
@@ -194,7 +206,8 @@ case $ranCmdLower in
 	boom)
 		if $funEnabled; then
 			echo "[$tUser] Blew me up!"
-			echo "say \"Initiating self destruct sequence...\"; explode" >> stdin
+			echo "say \"Initiating self destruct sequence...\"; explode" > ../"$modName"/cfg/stdin.cfg
+			xdotool type --window "$(xdotool search --class hl2_linux)" =
 		fi
 		;;
 	say\ *)
@@ -203,10 +216,12 @@ case $ranCmdLower in
 			if [[ $phrase != $ranCmdEscaped ]]; then
 				if [[ $phrase == \!* || $phrase == /* ]]; then
 					echo "[$tUser] tried to make me say $phrase!"
-					echo "say \"Sorry $tUserEscaped, but I will not run commands!\"" >> stdin
+					echo "say \"Sorry $tUserEscaped, but I will not run commands!\"" > ../"$modName"/cfg/stdin.cfg
+					xdotool type --window "$(xdotool search --class hl2_linux)" =
 				else
 					echo "[$tUser] made me say $phrase!"
-					echo "say \"$phrase\"" >> stdin
+					echo "say \"$phrase\"" > ../"$modName"/cfg/stdin.cfg
+					xdotool type --window "$(xdotool search --class hl2_linux)" =
 				fi
 			fi
 		fi
@@ -214,7 +229,7 @@ case $ranCmdLower in
 	yt\ *)
 		if true; then
 			echo "[$tUser] requested a youtube video!"
-			#echo "say \"[PikaDJ] Getting video info...\"" >> stdin
+			#echo "say \"[PikaDJ] Getting video info...\"" >> ../"$modName"/cfg/stdin.cfg
 			videoUrl=$(echo "$ranCmd" | sed -e 's/yt \([^ ].*\)/\1/I')
 			./tf2YoutubeDownloader "$videoUrl" "$tUserEscaped" "$shouldLoopback" &
 		fi
@@ -232,7 +247,7 @@ case $ranCmdLower in
 	*)
 		;;
 		#echo "[$tUser] I'm sorry $tUser, but $ranCmdFull is not a programmed command."
-		#echo "say [PikaDJ] I'm sorry $tUserEscaped, but $ranCmdFullEscaped is not a programmed command." >> stdin
+		#echo "say [PikaDJ] I'm sorry $tUserEscaped, but $ranCmdFullEscaped is not a programmed command." >> ../"$modName"/cfg/stdin.cfg
 esac
 else
 	case $line in
@@ -242,16 +257,19 @@ else
 			;;
 		sendHelp)
 			echo "Sent help due to bind!"
-			echo "say [PikaDJ] Commands: ""$commandPrefix""yts song name - Request song from youtube, ""$commandPrefix""yt youtubeURL - request song by URL..." >> stdin
+			echo "say [PikaDJ] Commands: ""$commandPrefix""yts song name - Request song from youtube, ""$commandPrefix""yt youtubeURL - request song by URL..." > ../"$modName"/cfg/stdin.cfg
+			xdotool type --window "$(xdotool search --class hl2_linux)" =
 			sleep 1.2
-			echo "say [PikaDJ] Commands: ""$commandPrefix""skip - initiate a vote to skip song, ""$commandPrefix""info/""$commandPrefix""song - get the currently playing song." >> stdin
+			echo "say [PikaDJ] Commands: ""$commandPrefix""skip - initiate a vote to skip song, ""$commandPrefix""info/""$commandPrefix""song - get the currently playing song." > ../"$modName"/cfg/stdin.cfg
+			xdotool type --window "$(xdotool search --class hl2_linux)" =
 			;;
 		resetMic)
 			if [[ $shouldLoopback == "0" ]]; then
 				echo "Could not reset mic source due to server mode!"
 			else
 				echo "Reset mic source due to bind!"
-				echo "micspamEnable" >> stdin
+				echo "micspamEnable" > ../"$modName"/cfg/stdin.cfg
+				xdotool type --window "$(xdotool search --class hl2_linux)" =
 				appIndex=0
 				while [[ $appIndex != "null" ]]; do
 					while read sourceLine; do
@@ -261,7 +279,8 @@ else
 						esac
 					done < <(pacmd list-source-outputs) >/dev/null 2>/dev/null
 				done
-				echo "micspamDisable" >> stdin
+				echo "micspamDisable" > ../"$modName"/cfg/stdin.cfg
+				xdotool type --window "$(xdotool search --class hl2_linux)" =
 			fi
 			;;
 		The\ server\ is\ using\ sv_pure\ *)
@@ -279,12 +298,14 @@ else
 			;;
 		skipMusic)
 			echo "Skipped song due to bind!"
-			echo "say [PikaDJ] Skipped Song!" >> stdin
+			echo "say [PikaDJ] Skipped Song!" > ../"$modName"/cfg/stdin.cfg
+			xdotool type --window "$(xdotool search --class hl2_linux)" =
 			skipSong
 			;;
 		clearMusic)
 			echo "Cleared playlist due to bind!"
-			echo "say [PikaDJ] Cleared playlist!" >> stdin
+			echo "say [PikaDJ] Cleared playlist!" > ../"$modName"/cfg/stdin.cfg
+			xdotool type --window "$(xdotool search --class hl2_linux)" =
 			clearQueue
 			rm -f ~/Music/youtubeRequests/fixedName/* >/dev/null 2>/dev/null
 			;;

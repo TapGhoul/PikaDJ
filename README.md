@@ -11,8 +11,10 @@ Prerequisites:
 
 * bash
 * pulseaudio
-* libav-tools
+* libav-tools OR ffmpeg
 * sox
+* mplayer
+* xdotool
 * youtube-dl (http://rg3.github.io/youtube-dl/download.html)
 	* **MUST BE INSTALLED FROM THE WEBSITE, NOT FROM A PACKAGE MANAGER**
 * Any codecs you believe may be useful for decoding FLVs and MP4s from youtube (can be any really, needs to be detected by libav-tools)
@@ -42,7 +44,7 @@ Installation:
 
 	```bash
 	$ cd "~/.local/share/Steam/SteamApps/common/Team Fortress 2/PikaDJ/"
-	$ chmod a+x PikaDJ tf2*
+	$ chmod a+x PikaDJ tf2* utils
 	```
 
 2. Add these lines to autoexec.cfg in `~/.local/share/Steam/SteamApps/common/Team Fortress 2/tf/cfg/`:
@@ -58,11 +60,14 @@ Installation:
 	bind KP_END "echo resetMic" // Reset your microphone manually on servers with sv_use_steam_voice 1 (in case anything goes wrong, and it doesn't reset manually)
 	bind KP_PLUS "echo sendSongInfo" // Say the current song info - optional, but very useful
 	// bind KP_DEL "echo sendHelp" // Say PikaDJ's command info - optional, uncomment to use
+	bind = "exec stdin" // Bind to execute console commands given by PikaDJ
+	alias micspamEnable "volume 1.0; voice_loopback 1; +voicerecord; alias micspamToggle micspamDisable" // Micspam enable command
+	alias micspamDisable "volume 1.0; -voicerecord; voice_loopback 0; alias micspamToggle micspamEnable" // Micspam disable command
+	alias micspamToggle micspamEnable // Toggle micspam (You can bind this alias to a key if you wish)
 	// End keybinds for PikaDJ //
 	```
 
-3. Set your TF2 launch options to `> tf/console.log; > PikaDJ/stdin; %command% -condebug < PikaDJ/stdin`
-	* Feel free to add other commands between `%command%` and `< PikaDJ/stdin`. `-condebug` is *required* to be in between those 2 segments.
+3. Set your TF2 launch options to `-condebug`, or add `con_logfile console.log` to your autoexec.cfg file.
 4. Profit!
 
 Usage:

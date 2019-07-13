@@ -1,4 +1,4 @@
-PikaDJ
+PikaDJ [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 ======
 
 Hey! This software, PikaDJ, was made by me, {FM} [Linux] PIKACHU! (http://steamcommunity.com/profiles/76561198034518769)
